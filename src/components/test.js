@@ -4,7 +4,8 @@ class Test extends Component {
   render() {
     return (
       <div>
-      hello new test page
+          Test Page
+      <button type="button" onClick={() => {console.log(this.props)}}>test router</button>
       </div>
     );
   }

@@ -9,23 +9,30 @@ const isDev = require('electron-is-dev');
 
 let mainWindow;
 
+
+
 function createWindow() {
-  mainWindow = new BrowserWindow({width: 900, height: 680});
+  mainWindow = new BrowserWindow({width: 1500, height: 1500});
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
   mainWindow.on('closed', () => mainWindow = null);
+  mainWindow.webContents.openDevTools()
 
   var menu = Menu.buildFromTemplate([
     {
         label: 'Menu',
         submenu: [
             {
-              label: 'home'
+              label: 'home',
+              click() {
+                  console.log('home')
+                  mainWindow.send("menuClick", "/Home")
+              }
             },
             {
               label: 'test',
               click() {
-                  mainWindow.send("test", "thetest")
-                  console.log("sinding")
+                  console.log('test')
+                  mainWindow.send("menuClick", "/Test")
               }
             },
             {
