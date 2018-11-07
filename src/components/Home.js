@@ -8,7 +8,7 @@ class Home extends Component {
     return (
       <HomeStyle>
           <div id='sideNav'>
-              Home Page
+              Controls
               <button type="button" onClick={() => {document.getElementsByTagName("webview")[0].openDevTools();}}>test router</button>
           </div>
           <webview id="foo" src="https://www.tradingview.com/chart/xZlrCJ3o/" />
@@ -27,7 +27,8 @@ const HomeStyle = styled.div`
 
     color: white;
     #sideNav{
-        width: 300px;
+        
+        min-width: 20%;
 
     }
 
