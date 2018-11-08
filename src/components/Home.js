@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux';
 import { webview } from 'react-electron-web-view'
 import styled from 'styled-components'
+
+import {settingsSetBinanceApiAction, settingsGitBinanceApiAction} from '../actions/binanceApiActions.js'
 
 class Home extends Component {
 
@@ -10,6 +13,8 @@ class Home extends Component {
           <div id='sideNav'>
               Home Page
               <button type="button" onClick={() => {document.getElementsByTagName("webview")[0].openDevTools();}}>test router</button>
+              <button type='button' onClick={() => {this.props.settingsAction()}}>settings action</button>
+              <button type='button' onClick={() => {this.props.settingsActiongit()}}>settings git</button>
           </div>
           <webview id="foo" src="https://www.tradingview.com/chart/xZlrCJ3o/" />
       </HomeStyle>
@@ -17,7 +22,17 @@ class Home extends Component {
   }
 }
 
-export default Home;
+const mapStateToProps = state => ({
+    //test: testReducer,
+})
+
+const mapActionsToProps = {
+    settingsSetBinanceApiAction,
+    settingsGitBinanceApiAction
+    //testAction,
+}
+
+export default connect(mapStateToProps, mapActionsToProps)(Home)
 
 const HomeStyle = styled.div`
     display: inline-flex;

@@ -7,6 +7,7 @@ import { testReducer } from './reducers/test.js';
 import { testAction } from './actions/test.js';
 import Home from "./components/Home.js";
 import Test from "./components/test.js";
+import Settings from "./components/settings.js";
 const electron = window.require("electron")
 
 class App extends Component {
@@ -40,6 +41,7 @@ handleRenderer(event, data) {
                 <Route exact path="/" component={ Home }/>
                 <Route exact path="/Test" component={ Test }/>
                 <Route exact path="/Home" component={ Home }/>
+                <Route exact path="/Settings" component={ Settings }/>
           </div>
         );
     }

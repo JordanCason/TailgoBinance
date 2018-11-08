@@ -36,6 +36,13 @@ function createWindow() {
               }
             },
             {
+              label: 'Settings',
+              click() {
+                  console.log('Settings')
+                  mainWindow.send("menuClick", "/Settings")
+              }
+            },
+            {
               label: 'exit',
               click() {
                   app.quit()
