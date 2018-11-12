@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
+import promiseMiddleware from 'redux-promise-middleware'
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware, combineReducers  } from 'redux'
 import thunk from 'redux-thunk'
@@ -15,7 +16,10 @@ const rootReducer = combineReducers({
 
 const initialState = {};
 
-const middleware = [thunk];
+const middleware = [
+  thunk,
+  promiseMiddleware
+  ];
 
 const store = createStore(rootReducer, initialState, applyMiddleware(...middleware))
 

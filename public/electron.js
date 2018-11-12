@@ -36,6 +36,13 @@ function createWindow() {
               }
             },
             {
+              label: 'Settings',
+              click() {
+                  console.log('Settings')
+                  mainWindow.send("menuClick", "/Settings")
+              }
+            },
+            {
               label: 'exit',
               click() {
                   app.quit()
@@ -49,6 +56,12 @@ function createWindow() {
             {role: 'reload'},
             {role: 'forcereload'},
             {role: 'toggledevtools'},
+            {
+              label: 'Webview DevTools',
+              click() {
+                  mainWindow.send("Webview_Devtools", "")
+              }
+            },
             {type: 'separator'},
             {role: 'resetzoom'},
             {role: 'zoomin'},
