@@ -11,10 +11,67 @@ class Home extends Component {
     return (
       <HomeStyle>
           <div id='sideNav'>
-              Home Page
-              <button type="button" onClick={() => {document.getElementsByTagName("webview")[0].openDevTools();}}>test router</button>
-              <button type='button' onClick={() => {this.props.settingsAction()}}>settings action</button>
-              <button type='button' onClick={() => {this.props.settingsActiongit()}}>settings git</button>
+              <a>Test Functions</a><br/>
+              <button type='button' onClick={() => {this.props.settingsAction()}}>settings action</button><br/>
+              <button type='button' onClick={() => {this.props.settingsActiongit()}}>settings action</button><br/>
+              <br/>
+              <br/>
+              <a>Auto Trading</a><br/>
+              <a>Status: Lissining</a><br/>
+              <button type='button' onClick={() => {null()}}>ON</button><button type='button' onClick={() => {null()}}>OFF</button><br/>
+
+              <br/>
+              <br/>
+              <a>Buy</a><br/>
+              <a>Quantity:</a><br/>
+              <input type='text' defaultValue='100'/>
+              <button type='button' onClick={() => {null()}}>Max</button><br/>
+              Price:<br/>
+              <input type='text' defaultValue='0.05489587'/>
+              <button type='button' onClick={() => {null()}}>Auto</button><br/>
+              <button type='button' onClick={() => {null()}}>Set Buy</button><br/>
+              <br/>
+              <br/>
+              <a>Sell</a><br/>
+              <a>Quantity:</a><br/>
+              <input type='text' defaultValue='100'/>
+              <button type='button' onClick={() => {null()}}>Max</button><br/>
+              Price:<br/>
+              <input type='text' defaultValue='0.05489587'/>
+              <button type='button' onClick={() => {null()}}>Auto</button><br/>
+              <button type='button' onClick={() => {null()}}>Set Buy</button><br/>
+              <br/>
+              <br/>
+              <br/>
+              <br/>
+              Insert Alert Action:<br/>
+              Order:<br/>
+              <button type='button' onClick={() => {null()}}>BUY</button>
+              <button type='button' onClick={() => {null()}}>SELL</button><br/>
+              <br/>
+              Type:<br/>
+              <button type='button' onClick={() => {null()}}>MAKER</button>
+              <button type='button' onClick={() => {null()}}>TAKER</button>
+              <button type='button' onClick={() => {null()}}>TRACKER</button>
+              <button type='button' onClick={() => {null()}}>STOP</button><br/>
+              <br/>
+              Quantity:<br/>
+              <input type='text' defaultValue='0.05489587'/><br/>
+              <br/>
+              <button type='button' onClick={() => {null()}}>Insert Data</button>
+
+
+
+              <br/>
+              <br/>
+              <br/>
+              <a>
+              Json fromat<br/>
+              Order: BUY/SELL/STOP<br/>
+              Type: MAKER/TAKER/TRACKER<br/>
+              Quantity: 100<br/>
+
+              </a>
           </div>
           <webview id="foo" src="https://www.tradingview.com/chart/xZlrCJ3o/" />
       </HomeStyle>
@@ -48,6 +105,7 @@ const HomeStyle = styled.div`
 
 
     webview {
+      background-color: gray;
         height: 100%;
         width: 100%;
     }

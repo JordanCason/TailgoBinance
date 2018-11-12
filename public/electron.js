@@ -56,6 +56,12 @@ function createWindow() {
             {role: 'reload'},
             {role: 'forcereload'},
             {role: 'toggledevtools'},
+            {
+              label: 'Webview DevTools',
+              click() {
+                  mainWindow.send("Webview_Devtools", "")
+              }
+            },
             {type: 'separator'},
             {role: 'resetzoom'},
             {role: 'zoomin'},
