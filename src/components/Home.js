@@ -73,7 +73,7 @@ class Home extends Component {
 
               </a>
           </div>
-          <webview id="foo" src="https://www.tradingview.com/chart/xZlrCJ3o/" />
+          <webview id="foo" src="https://www.tradingview.com/chart/KyFTcT28/" />
       </HomeStyle>
     );
   }
