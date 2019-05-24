@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
+import styled from 'styled-components'
 import logo from './logo.svg';
-import './App.css';
 import { Route } from 'react-router-dom';
 import {connect} from 'react-redux';
 import { testReducer } from './reducers/test.js';
@@ -42,12 +42,15 @@ openWebviewDevtools(event, data) {
 
     render() {
         return (
-            <div id='here'>
+            <AppStyle id='here'>
+              <div>
                 <Route exact path="/" component={ Home }/>
                 <Route exact path="/Test" component={ Test }/>
                 <Route exact path="/Home" component={ Home }/>
                 <Route exact path="/Settings" component={ Settings }/>
-          </div>
+              </div>
+              <webview id="foo" src="https://www.tradingview.com/chart/KyFTcT28/" />
+          </AppStyle>
         );
     }
 }
@@ -60,3 +63,21 @@ const mapActionsToProps = {
 }
 
 export default connect(mapStateToProps, mapActionsToProps)(App)
+
+const AppStyle = styled.div`
+display: inline-flex;
+height: 100%;
+width: 100%;
+
+div {
+  height: 100%;
+  width: 30%;
+  background-color: #2f3241;
+}
+
+webview {
+  background-color: gray;
+  height: 100%;
+  width: 100%;
+}
+`

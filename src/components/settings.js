@@ -9,7 +9,7 @@ class Settings extends Component {
   render() {
     return (
       <SettingsStyle>
-          <div>
+          <div id='sideNav'>
           Setings Page
               <form>
               APIKEY: <input type="text" name="APIKEY"/><br/>
@@ -35,15 +35,8 @@ const mapActionsToProps = {
 export default connect(mapStateToProps, mapActionsToProps)(Settings)
 
 const SettingsStyle = styled.div`
-    display: inline-flex;
-    height: 100%;
-    width: 100%;
-    background-color: #2f3241;
-
-    color: white;
-    #sideNav{
-        width: 300px;
-
-    }
-
+color: white;
+#sideNav{
+  width: 100%;
+}
 `

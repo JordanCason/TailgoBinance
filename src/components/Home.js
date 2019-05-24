@@ -74,7 +74,7 @@ class Home extends Component {
 
               </a>
           </div>
-          <webview id="foo" src="https://www.tradingview.com/chart/KyFTcT28/" /> //https://www.tradingview.com/chart/KyFTcT28/
+           //https://www.tradingview.com/chart/KyFTcT28/
       </HomeStyle>
     );
   }
@@ -95,22 +95,8 @@ const mapActionsToProps = {
 export default connect(mapStateToProps, mapActionsToProps)(Home)
 
 const HomeStyle = styled.div`
-    display: inline-flex;
-    height: 100%;
-    width: 100%;
-    background-color: #2f3241;
-
-    color: white;
-    #sideNav{
-
-        min-width: 20%;
-
-    }
-
-
-    webview {
-      background-color: gray;
-        height: 100%;
-        width: 100%;
-    }
+color: white;
+#sideNav{
+  width: 100%;
+}
 `
