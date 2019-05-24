@@ -4,21 +4,23 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
-import promiseMiddleware from 'redux-promise-middleware'
+import promise from 'redux-promise-middleware'
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware, combineReducers  } from 'redux'
 import thunk from 'redux-thunk'
 import { testReducer } from './reducers/test.js'
+import { rpcSwitchReducer } from './reducers/rpcSwitchReducer'
 
 const rootReducer = combineReducers({
     testReducer,
+    rpcSwitchReducer
 })
 
 const initialState = {};
 
 const middleware = [
   thunk,
-  promiseMiddleware
+  promise()
   ];
 
 const store = createStore(rootReducer, initialState, applyMiddleware(...middleware))

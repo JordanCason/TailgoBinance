@@ -30,13 +30,15 @@ export const settingsGitBinanceApiAction = () => {
   console.log(settings.has('name.middle'));
 }
 
-
 // const binaceinit = () => ({
 //   // type: BINANCE,
 //   // payload: new Promise(() => {
 //   //
 //   // }),
 // })
+
+
+
 
 //const testwright = () => ({
 //  ipcRenderer.sendToHost('SETTINGS', "save Settings")

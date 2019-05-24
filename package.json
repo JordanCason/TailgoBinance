@@ -14,8 +14,8 @@
     "install": "^0.12.2",
     "node-binance-api": "^0.8.7",
     "npm": "^6.4.1",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-electron-web-view": "^2.0.1",
     "react-redux": "^5.1.0",
     "react-router-dom": "^4.3.1",
@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron --inspect=5858 .\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -43,5 +43,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {}
 }

@@ -4,7 +4,6 @@ import './App.css';
 import { Route } from 'react-router-dom';
 import {connect} from 'react-redux';
 import { testReducer } from './reducers/test.js';
-import { testAction } from './actions/test.js';
 import Home from "./components/Home.js";
 import Test from "./components/test.js";
 import Settings from "./components/settings.js";
@@ -19,7 +18,7 @@ class App extends Component {
 }
 
 componentDidMount() {
-    this.props.testAction()
+    //this.props.testAction()
     electron.ipcRenderer.on("menuClick", this.handleRenderer)
     electron.ipcRenderer.on("Webview_Devtools", this.openWebviewDevtools)
 
@@ -31,9 +30,10 @@ conponentWillUnmount() {
 }
 
 handleRenderer(event, data) {
-    if (this.props.history.location.pathname !== data){
-        this.props.history.push(data)
-    }
+  if (this.props.history.location.pathname !== data){
+    console.log(data)
+    this.props.history.push(data)
+  }
 }
 
 openWebviewDevtools(event, data) {
@@ -57,7 +57,6 @@ const mapStateToProps = state => ({
 })
 
 const mapActionsToProps = {
-    testAction,
 }
 
 export default connect(mapStateToProps, mapActionsToProps)(App)

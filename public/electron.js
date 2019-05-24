@@ -5,7 +5,8 @@ const shell = require('electron').shell
 const path = require('path');
 const url = require('url');
 const isDev = require('electron-is-dev');
-
+const ipcSwitch = require('./ipcSwitch.js');
+const Promise = require('promise');
 
 let mainWindow;
 
@@ -74,9 +75,12 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
  }
 
-ipcMain.on('CATCH_ON_MAIN', (event, arg) => {
-  console.log('here')
-});
+ipcMain.on('FUNCTION_CALL', (event, msg) => {
+  ipcSwitch(msg).then((result) => {
+    event.sender.send(msg[0], result)
+  });
+})
+
 
 app.on('ready', createWindow);
 

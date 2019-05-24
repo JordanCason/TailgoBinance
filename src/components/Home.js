@@ -4,7 +4,7 @@ import { webview } from 'react-electron-web-view'
 import styled from 'styled-components'
 
 import {settingsSetBinanceApiAction, settingsGitBinanceApiAction} from '../actions/binanceApiActions.js'
-
+import { exicuteNode } from '../actions/testIpcSwitchAction'
 class Home extends Component {
 
   render() {
@@ -12,8 +12,9 @@ class Home extends Component {
       <HomeStyle>
           <div id='sideNav'>
               <a>Test Functions</a><br/>
-              <button type='button' onClick={() => {this.props.settingsAction()}}>settings action</button><br/>
-              <button type='button' onClick={() => {this.props.settingsActiongit()}}>settings action</button><br/>
+              <button type='button' onClick={() => {this.props.settingsSetBinanceApiAction()}}>set API</button><br/>
+              <button type='button' onClick={() => {this.props.settingsGitBinanceApiAction()}}>get API</button><br/>
+              <button type='button' onClick={() => {this.props.exicuteNode('TESTFUNK', 'jordan', 29)}}>test send</button><br/>
               <br/>
               <br/>
               <a>Auto Trading</a><br/>
@@ -73,19 +74,21 @@ class Home extends Component {
 
               </a>
           </div>
-          <webview id="foo" src="https://www.tradingview.com/chart/KyFTcT28/" />
+          <webview id="foo" src="https://www.tradingview.com/chart/KyFTcT28/" /> //https://www.tradingview.com/chart/KyFTcT28/
       </HomeStyle>
     );
   }
 }
 
 const mapStateToProps = state => ({
-    //test: testReducer,
+    test: state.rpcSwitchReducer,
+
 })
 
 const mapActionsToProps = {
     settingsSetBinanceApiAction,
-    settingsGitBinanceApiAction
+    settingsGitBinanceApiAction,
+    exicuteNode
     //testAction,
 }
 
