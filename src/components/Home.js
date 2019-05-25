@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import { webview } from 'react-electron-web-view'
 import styled from 'styled-components'
 
-import {settingsSetBinanceApiAction, settingsGitBinanceApiAction} from '../actions/binanceApiActions.js'
+import {settingsSetBinanceApiAction, settingsGitBinanceApiAction, loadSettings} from '../actions/settingsAction.js'
 import { exicuteNode } from '../actions/testIpcSwitchAction'
 class Home extends Component {
 
@@ -12,8 +12,8 @@ class Home extends Component {
       <HomeStyle>
           <div id='sideNav'>
               <a>Test Functions</a><br/>
-              <button type='button' onClick={() => {this.props.settingsSetBinanceApiAction()}}>set API</button><br/>
-              <button type='button' onClick={() => {this.props.settingsGitBinanceApiAction()}}>get API</button><br/>
+              <button type='button' onClick={() => {console.log(this.props)}}>this.props</button><br/>
+
               <button type='button' onClick={() => {this.props.exicuteNode('TESTFUNK', 'jordan', 29)}}>test send</button><br/>
               <br/>
               <br/>
@@ -88,7 +88,8 @@ const mapStateToProps = state => ({
 const mapActionsToProps = {
     settingsSetBinanceApiAction,
     settingsGitBinanceApiAction,
-    exicuteNode
+    exicuteNode,
+    loadSettings
     //testAction,
 }
 

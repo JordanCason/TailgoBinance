@@ -12,23 +12,9 @@ export const BINANCE = "BINANCE"
 
 
 const app = window.require("electron")
-const settings = window.require('electron-settings');
 
 
-const TEST = "TEST"
 
-export const settingsSetBinanceApiAction = () => {
-    settings.set('name', {
-    first: 'Cosmo',
-    last: 'Kramer'
-    });
-}
-
-
-export const settingsGitBinanceApiAction = () => {
-  console.log(settings.get('name.first'));
-  console.log(settings.has('name.middle'));
-}
 
 // const binaceinit = () => ({
 //   // type: BINANCE,

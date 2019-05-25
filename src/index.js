@@ -10,10 +10,11 @@ import { createStore, applyMiddleware, combineReducers  } from 'redux'
 import thunk from 'redux-thunk'
 import { testReducer } from './reducers/test.js'
 import { rpcSwitchReducer } from './reducers/rpcSwitchReducer'
-
+import { settingsReducer } from './reducers/settingsReducer'
 const rootReducer = combineReducers({
     testReducer,
-    rpcSwitchReducer
+    rpcSwitchReducer,
+    settingsReducer
 })
 
 const initialState = {};

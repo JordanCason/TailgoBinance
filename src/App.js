@@ -7,6 +7,7 @@ import { testReducer } from './reducers/test.js';
 import Home from "./components/Home.js";
 import Test from "./components/test.js";
 import Settings from "./components/settings.js";
+import { loadSettings } from './actions/settingsAction.js'
 const electron = window.require("electron")
 
 class App extends Component {
@@ -14,11 +15,11 @@ class App extends Component {
     super(props);
     this.handleRenderer = this.handleRenderer.bind(this);
     this.openWebviewDevtools = this.openWebviewDevtools.bind(this);
-    console.log(props)
 }
 
 componentDidMount() {
     //this.props.testAction()
+    this.props.loadSettings()
     electron.ipcRenderer.on("menuClick", this.handleRenderer)
     electron.ipcRenderer.on("Webview_Devtools", this.openWebviewDevtools)
 
@@ -57,9 +58,11 @@ openWebviewDevtools(event, data) {
 
 const mapStateToProps = state => ({
     test: testReducer,
+    settings: state.settingsReducer
 })
 
 const mapActionsToProps = {
+  loadSettings
 }
 
 export default connect(mapStateToProps, mapActionsToProps)(App)
