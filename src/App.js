@@ -50,7 +50,7 @@ openWebviewDevtools(event, data) {
                 <Route exact path="/Home" component={ Home }/>
                 <Route exact path="/Settings" component={ Settings }/>
               </div>
-              <webview id="foo" src="https://www.tradingview.com/chart/KyFTcT28/" />
+              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src="https://www.tradingview.com/chart/KyFTcT28/" />
           </AppStyle>
         );
     }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import { webview } from 'react-electron-web-view'
 import styled from 'styled-components'
-
+import { toggleAlertLissnerAction } from '../actions/webviewSwitchActions'
 import {settingsSetBinanceApiAction, settingsGitBinanceApiAction, loadSettings} from '../actions/settingsAction.js'
 import { exicuteNode } from '../actions/testIpcSwitchAction'
 class Home extends Component {
@@ -19,7 +19,7 @@ class Home extends Component {
               <br/>
               <a>Auto Trading</a><br/>
               <a>Status: Lissining</a><br/>
-              <button type='button' onClick={() => {null()}}>ON</button><button type='button' onClick={() => {null()}}>OFF</button><br/>
+              <button name="lissining" type='button' onClick={() => {this.props.toggleAlertLissnerAction(!this.props.toggleAlertLissner.lissining)}}>{this.props.toggleAlertLissner.lissining ? 'True' : 'False'}</button>
 
               <br/>
               <br/>
@@ -82,12 +82,14 @@ class Home extends Component {
 
 const mapStateToProps = state => ({
     test: state.rpcSwitchReducer,
+    toggleAlertLissner: state.toggleAlertLissnerReducer
 
 })
 
 const mapActionsToProps = {
     settingsSetBinanceApiAction,
     settingsGitBinanceApiAction,
+    toggleAlertLissnerAction,
     exicuteNode,
     loadSettings
     //testAction,

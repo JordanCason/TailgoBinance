@@ -11,10 +11,12 @@ import thunk from 'redux-thunk'
 import { testReducer } from './reducers/test.js'
 import { rpcSwitchReducer } from './reducers/rpcSwitchReducer'
 import { settingsReducer } from './reducers/settingsReducer'
+import { toggleAlertLissnerReducer } from './reducers/webviewSwitchReducers'
 const rootReducer = combineReducers({
     testReducer,
     rpcSwitchReducer,
-    settingsReducer
+    settingsReducer,
+    toggleAlertLissnerReducer
 })
 
 const initialState = {};
