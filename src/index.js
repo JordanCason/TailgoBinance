@@ -26,7 +26,7 @@ const middleware = [
   promise()
   ];
 
-const store = createStore(rootReducer, initialState, applyMiddleware(...middleware))
+export const store = createStore(rootReducer, initialState, applyMiddleware(...middleware))
 
 
 ReactDOM.render((
