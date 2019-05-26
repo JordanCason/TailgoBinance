@@ -6,7 +6,6 @@ const Binance = window.require('binance-api-node').default;
 const binance2 = window.require('node-binance-api')
 let client, client2, orderTracker, temp = {}
 const settings = window.require('electron-settings');
-
 const SimpleNodeLogger = window.require('simple-node-logger'),
     opts = {
         logFilePath:`${settings.get('userData')}/my-app/development.log`,
@@ -207,11 +206,19 @@ export const placeTrackingOrder = async(msg) => {
     quantity: msg.quantity,
     price: newOrderPrice,
   }).catch((err) => {
-    console.log(err)
-    if ('insufficient balance' in err) {
+    // console.log(err.message)
+    // console.log(err.name)
+    if (err.message === 'Account has insufficient balance for requested action.') {
       console.log('Not enough funds in acccout to place that order')
     }
   })
+  if (!response) {
+    // @DEV if the order had an error or is response obect is empty for any
+    // @DEV reason than just return the placeTrackingOrder function
+    // @DEV all errors should be handled in the .catch()
+    console.log('in undefined')
+    return
+  }
   // @DEV every new order will add 1 for it custom id for tracking orders
   response.customId = customId++
   msg = {
