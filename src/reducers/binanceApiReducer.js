@@ -1,18 +1,17 @@
-const TEST = "TEST"
+import { BINANCE_CLIENTS_INITIALIZED_FULFILLED } from '../actions/binanceApiActions'
 
 const initialState = {
-    items: [],
-    item: {}
+    apiLoaded: false
 }
 
-export function testReducer(state = initialState, action) {
+export function binanceApiReducer(state = initialState, action) {
     const { type, payload } = action
     switch (type) {
-        case TEST:
+        case BINANCE_CLIENTS_INITIALIZED_FULFILLED:
         console.log(payload)
         return {
             ...state,
-            test: payload
+            apiLoaded: payload
         }
         default:
         return state

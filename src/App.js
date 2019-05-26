@@ -9,6 +9,7 @@ import Test from "./components/test.js";
 import Settings from "./components/settings.js";
 import { loadSettings } from './actions/settingsAction.js'
 const electron = window.require("electron")
+//const { default: installExtension, REDUX_DEVTOOLS } = window.require('electron-devtools-installer');
 
 class App extends Component {
   constructor (props) {
@@ -18,7 +19,9 @@ class App extends Component {
 }
 
 componentDidMount() {
-    //this.props.testAction()
+  //installExtension(REDUX_DEVTOOLS)
+      //.then((name) => console.log(`Added Extension:  ${name}`))
+      //.catch((err) => console.log('An error occurred: ', err));
     this.props.loadSettings()
     electron.ipcRenderer.on("menuClick", this.handleRenderer)
     electron.ipcRenderer.on("Webview_Devtools", this.openWebviewDevtools)

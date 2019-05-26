@@ -1,4 +1,5 @@
 
+
 const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const shell = require('electron').shell
 const settings = require('electron-settings');
@@ -10,6 +11,8 @@ const Promise = require('promise');
 
 let mainWindow;
 
+
+
 settings.set('userData', app.getPath('appData'));
 
 function createWindow() {
@@ -17,7 +20,9 @@ function createWindow() {
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
   mainWindow.on('closed', () => mainWindow = null);
   mainWindow.webContents.openDevTools()
-console.log(app.getPath('appData'))
+
+
+
   var menu = Menu.buildFromTemplate([
     {
         label: 'Menu',

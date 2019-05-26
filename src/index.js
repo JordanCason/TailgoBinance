@@ -7,16 +7,21 @@ import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
 import promise from 'redux-promise-middleware'
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware, combineReducers  } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk'
 import { testReducer } from './reducers/test.js'
 import { rpcSwitchReducer } from './reducers/rpcSwitchReducer'
 import { settingsReducer } from './reducers/settingsReducer'
 import { toggleAlertLissnerReducer } from './reducers/webviewSwitchReducers'
+import { binanceApiReducer } from './reducers/binanceApiReducer'
+
+
 const rootReducer = combineReducers({
     testReducer,
     rpcSwitchReducer,
     settingsReducer,
-    toggleAlertLissnerReducer
+    toggleAlertLissnerReducer,
+    binanceApiReducer
 })
 
 const initialState = {};
@@ -26,7 +31,9 @@ const middleware = [
   promise()
   ];
 
-export const store = createStore(rootReducer, initialState, applyMiddleware(...middleware))
+export const store = createStore(rootReducer, initialState, composeWithDevTools(
+  applyMiddleware(...middleware)))
+
 
 
 ReactDOM.render((

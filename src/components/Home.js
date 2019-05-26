@@ -19,7 +19,7 @@ class Home extends Component {
           <button name="lissining" type='button' onClick={() => {TestOrder2()}}>TestOrder2</button><br/>
           <button name="lissining" type='button' onClick={() => {checkOrders()}}>checkOrders</button><br/>
           <button name="lissining" type='button' onClick={() => {testTime('OPS')}}>testeTime</button><br/>
-          <button name="lissining" type='button' onClick={() => {initBinanceApi()}}>initBinanceApi</button><br/>
+          <button name="lissining" type='button' onClick={() => {this.props.initBinanceApi()}}>initBinanceApi</button><br/>
           <button name="lissining" type='button' onClick={() => {getBallance()}}>getBallance</button><br/>
 
 
@@ -105,7 +105,8 @@ const mapActionsToProps = {
     settingsGitBinanceApiAction,
     toggleAlertLissnerAction,
     exicuteNode,
-    loadSettings
+    loadSettings,
+    initBinanceApi
     //testAction,
 }
 

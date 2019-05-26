@@ -36,7 +36,8 @@ class Settings extends Component {
               <br/><br/><br/>Tests<br/>
               <button type='button' onClick={() => {this.props.settingsSetBinanceApiAction()}}>set API</button><br/>
               <button type='button' onClick={() => {this.props.settingsGitBinanceApiAction()}}>get API</button><br/>
-              <button type='button' onClick={() => {console.log(this.props.settings)}}>this.props.settings</button><br/>
+              <button type='button' onClick={() => {console.log(this.props)}}>this.props</button><br/>
+              <button type='button' onClick={() => {console.log(this.state)}}>this.state</button><br/>
               <button type='button' onClick={() => {this.props.loadSettings()}}>Load Settings</button><br/>
               </form>
           </div>

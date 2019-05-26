@@ -1,7 +1,10 @@
 import { SET_BINANCE_API_FULFILLED } from '../actions/settingsAction'
 import { LOAD_SETTINGS_FULFILLED } from '../actions/settingsAction'
 const initialState = {
-    binance: {}
+    binance: {
+      'APIKEY': '',
+      'APISECRET': ''
+    }
 }
 
 export function settingsReducer(state = initialState, action) {

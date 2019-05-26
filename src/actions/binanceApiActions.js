@@ -1,10 +1,16 @@
 //     APIKEY: 'G4IKe2l4KaXEFeIIeIijS7ZoQ7JFxKQXji1ZC9gDb4PaFjQGhm2Mm8qn7EO6w2kC',
 //     APISECRET: 'm7D7IVD343D2tSi175TTKWvQxEnekXcaKlQJlq082ReV7W8UtvptgHyyw1Kewhwk',
+
+
 import {store} from '../index.js'
 import {BigNumber} from 'bignumber.js';
+
+export const BINANCE_CLIENTS_INITIALIZED = 'BINANCE_CLIENTS_INITIALIZED'
+export const BINANCE_CLIENTS_INITIALIZED_FULFILLED = 'BINANCE_CLIENTS_INITIALIZED_FULFILLED'
+
+// @DEV No single Binance API had everything we needed so loding two here.
 const Binance = window.require('binance-api-node').default;
 const binance2 = window.require('node-binance-api')
-let client, client2, orderTracker, temp = {}
 const settings = window.require('electron-settings');
 const SimpleNodeLogger = window.require('simple-node-logger'),
     opts = {
@@ -12,25 +18,33 @@ const SimpleNodeLogger = window.require('simple-node-logger'),
         timestampFormat:'YYYY-MM-DD HH:mm:ss.SSS'
     }
 const logger = SimpleNodeLogger.createSimpleFileLogger( opts );
+let client, client2, orderTracker = {}
 
 export const initBinanceApi = () => {
-  client = Binance({
-    apiKey: settings.get('binance.APIKEY'),
-    apiSecret: settings.get('binance.APISECRET'),
-    useServerTime: true,//JSON.parse(settings.get('BinanceAPI.useServerTime')),
-    test: true //JSON.parse(settings.get('BinanceAPI.test'))
-  })
-  client2 = new binance2().options({
-    APIKEY: settings.get('binance.APIKEY'),
-    APISECRET: settings.get('binance.APISECRET'),
-    useServerTime: true
-  })
-  // @DEV lissen for orders to stream in over the users acount and past them\
-  // to the signalHandler
-  client.ws.user(msg => {
-      signalHandler(msg)
-  })
+  return {
+    type: BINANCE_CLIENTS_INITIALIZED,
+    payload: new Promise((resolve, reject) => {
+      client = Binance({
+        apiKey: settings.get('binance.APIKEY'),
+        apiSecret: settings.get('binance.APISECRET'),
+        useServerTime: true,//JSON.parse(settings.get('BinanceAPI.useServerTime')),
+        test: true //JSON.parse(settings.get('BinanceAPI.test'))
+      })
+      client2 = new binance2().options({
+        APIKEY: settings.get('binance.APIKEY'),
+        APISECRET: settings.get('binance.APISECRET'),
+        useServerTime: true
+      })
+      // @DEV lissen for orders to stream in over the users acount and past them\
+      // to the signalHandler
+      client.ws.user(msg => {
+          signalHandler(msg)
+      })
+      resolve(true)
+    })
+  }
 }
+
 
 // only really need ot use OPS "Orders Per Second"
 let rateLimits = {
