@@ -53,12 +53,12 @@ openWebviewDevtools(event, data) {
                 <Route exact path="/Home" component={ Home }/>
                 <Route exact path="/Settings" component={ Settings }/>
               </div>
-              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src="https://www.tradingview.com/chart/KyFTcT28/" />
+              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src="" />
           </AppStyle>
         );
     }
 }
-
+//https://www.tradingview.com/chart/KyFTcT28/
 const mapStateToProps = state => ({
     test: testReducer,
     settings: state.settingsReducer
@@ -71,19 +71,18 @@ const mapActionsToProps = {
 export default connect(mapStateToProps, mapActionsToProps)(App)
 
 const AppStyle = styled.div`
-display: inline-flex;
-height: 100%;
-width: 100%;
+display: flex;
+
 
 div {
-  height: 100%;
-  width: 30%;
-  background-color: #2f3241;
+  flex-basis: 30%
+  background-color: #131722;
+
 }
 
 webview {
-  background-color: gray;
-  height: 100%;
-  width: 100%;
+  flex: 1
+  background-color: #131722;
+
 }
 `

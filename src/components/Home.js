@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import { webview } from 'react-electron-web-view'
 import styled from 'styled-components'
-import { toggleAlertLissnerAction } from '../actions/webviewSwitchActions'
+// import { toggleAlertLissnerAction } from '../actions/webviewSwitchActions'
 import {settingsSetBinanceApiAction, settingsGitBinanceApiAction, loadSettings} from '../actions/settingsAction.js'
 import { exicuteNode } from '../actions/testIpcSwitchAction'
 import { getTickerPrice, TestOrder1, TestOrder2, checkOrders, testTime, initBinanceApi, getBallance } from '../actions/binanceApiActions.js'
@@ -32,8 +32,8 @@ class Home extends Component {
               <br/>
               <br/>
               <a>Auto Trading</a><br/>
-              <a>Status: Lissining</a><br/>
-              <button name="lissining" type='button' onClick={() => {this.props.toggleAlertLissnerAction(!this.props.toggleAlertLissner.lissining)}}>{this.props.toggleAlertLissner.lissining ? 'True' : 'False'}</button>
+              // <a>Status: Lissining</a><br/>
+              // <button name="lissining" type='button' onClick={() => {this.props.toggleAlertLissnerAction(!this.props.toggleAlertLissner.lissining)}}>{this.props.toggleAlertLissner.lissining ? 'True' : 'False'}</button>
 
               <br/>
               <br/>
@@ -103,7 +103,7 @@ const mapStateToProps = state => ({
 const mapActionsToProps = {
     settingsSetBinanceApiAction,
     settingsGitBinanceApiAction,
-    toggleAlertLissnerAction,
+    // toggleAlertLissnerAction,
     exicuteNode,
     loadSettings,
     initBinanceApi

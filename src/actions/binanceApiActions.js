@@ -20,27 +20,34 @@ const SimpleNodeLogger = window.require('simple-node-logger'),
 const logger = SimpleNodeLogger.createSimpleFileLogger( opts );
 let client, client2, orderTracker = {}
 
-export const initBinanceApi = () => {
+export const initBinanceApi = (e) => {
+    console.log(e)
+
   return {
     type: BINANCE_CLIENTS_INITIALIZED,
     payload: new Promise((resolve, reject) => {
-      client = Binance({
-        apiKey: settings.get('binance.APIKEY'),
-        apiSecret: settings.get('binance.APISECRET'),
-        useServerTime: true,//JSON.parse(settings.get('BinanceAPI.useServerTime')),
-        test: true //JSON.parse(settings.get('BinanceAPI.test'))
-      })
-      client2 = new binance2().options({
-        APIKEY: settings.get('binance.APIKEY'),
-        APISECRET: settings.get('binance.APISECRET'),
-        useServerTime: true
-      })
-      // @DEV lissen for orders to stream in over the users acount and past them\
-      // to the signalHandler
-      client.ws.user(msg => {
-          signalHandler(msg)
-      })
-      resolve(true)
+      if (!e) {
+        client = Binance({
+          apiKey: settings.get('binance.APIKEY'),
+          apiSecret: settings.get('binance.APISECRET'),
+          useServerTime: true,//JSON.parse(settings.get('BinanceAPI.useServerTime')),
+          test: true //JSON.parse(settings.get('BinanceAPI.test'))
+        })
+        client2 = new binance2().options({
+          APIKEY: settings.get('binance.APIKEY'),
+          APISECRET: settings.get('binance.APISECRET'),
+          useServerTime: true
+        })
+        // @DEV lissen for orders to stream in over the users acount and past them\
+        // to the signalHandler
+        client.ws.user(msg => {
+            signalHandler(msg)
+        })
+      } else {
+       client = null
+       client2 = null
+      }
+      resolve(!e)
     })
   }
 }
@@ -601,8 +608,6 @@ export const placeTrackingOrder = async(msg) => {
 export const getTickerPrice = () => {
     // get current price of a ticker
     client2.prices('ENJETH', (error, ticker) => {
-      console.log(error)
-      console.log(ticker)
         console.log("ENJ/ETH: ", ticker.ENJETH);
     });
 }
