@@ -3,10 +3,29 @@ import {connect} from 'react-redux';
 import styled from 'styled-components'
 
 class ManualOrder extends Component {
+
+  constructor (props) {
+    super(props);
+    this.state = {}
+    this.handleInput = this.handleInput.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleInput = e => {
+    this.setState({[e.target.name]: e.target.value})
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault()
+    this.props.settingsSetBinanceApiAction(this.state.APIKEY, this.state.APISECRET)
+  }
+
+
+
   render() {
     return (
       <ManualStyle>
-          <form onChange={console.log('onchange')} className=''>
+          <form className=''>
             <div className='ticker'>
               <h3>Buy ENJ</h3>
               <i className='' >0.30129727 ETH</i>
@@ -14,30 +33,30 @@ class ManualOrder extends Component {
             <div className='inputcontainer'>
             <label className=''>Price:</label>
               <div className='inputrow'>
-                <input className='' onChange={console.log('onchange')}  name='stop'/>
+                <input className='' onChange={this.handleInput} value={this.state.price}  name='price'/>
                 <p className='base'>ETH</p>
               </div>
             </div>
             <div className='inputcontainer'>
               <label className='' >Amount:</label>
               <div className='inputrow'>
-                <input className='' onChange={console.log('onchange')} name='price'/>
+                <input className='' onChange={this.handleInput} value={this.state.amount} name='amount'/>
                 <p className='base'>ETH</p>
               </div>
             </div>
             <div className='inputcontainer'>
               <label className=''></label>
               <div className='percentagebuttons'>
-                <input className='button button4' onChange={console.log('onchange')} type='button' value='25%'/>
-                <input className='button button4' onChange={console.log('onchange')} type='button' value='50%'/>
-                <input className='button button4' onChange={console.log('onchange')} type='button' value='75%'/>
-                <input className='button button4' onChange={console.log('onchange')} type='button' value='100%'/>
+                <input className='button button4'  type='button' value='25%'/>
+                <input className='button button4'  type='button' value='50%'/>
+                <input className='button button4'  type='button' value='75%'/>
+                <input className='button button4'  type='button' value='100%'/>
               </div>
             </div>
             <div className='inputcontainer'>
               <label className=''>Total:</label>
               <div className='inputrow'>
-                <input className='' onChange={console.log('onchange')} name='total' />
+                <input className='' onChange={this.handleInput} value={this.state.total} name='total' />
                 <p className='base'>ETH</p>
               </div>
             </div>

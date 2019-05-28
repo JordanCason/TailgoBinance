@@ -8,8 +8,9 @@ import Home from "./components/Home.js";
 import Test from "./components/test.js";
 import Settings from "./components/settings.js";
 import { loadSettings } from './actions/settingsAction.js'
+import { webviewSwitch } from './actions/webviewSwitchActions'
 const electron = window.require("electron")
-//const { default: installExtension, REDUX_DEVTOOLS } = window.require('electron-devtools-installer');
+//cons t { default: installExtension, REDUX_DEVTOOLS } = window.require('electron-devtools-installer');
 
 class App extends Component {
   constructor (props) {
@@ -23,6 +24,7 @@ componentDidMount() {
       //.then((name) => console.log(`Added Extension:  ${name}`))
       //.catch((err) => console.log('An error occurred: ', err));
     this.props.loadSettings()
+    webviewSwitch()
     electron.ipcRenderer.on("menuClick", this.handleRenderer)
     electron.ipcRenderer.on("Webview_Devtools", this.openWebviewDevtools)
 
@@ -53,19 +55,20 @@ openWebviewDevtools(event, data) {
                 <Route exact path="/Home" component={ Home }/>
                 <Route exact path="/Settings" component={ Settings }/>
               </div>
-              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src="" />
+              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src="https://www.tradingview.com/chart/KyFTcT28/" />
           </AppStyle>
         );
     }
 }
-//https://www.tradingview.com/chart/KyFTcT28/
+//https://www.tradingview.com/chart/KyFTcT28/ disablewebsecurity='true'
 const mapStateToProps = state => ({
     test: testReducer,
     settings: state.settingsReducer
 })
 
 const mapActionsToProps = {
-  loadSettings
+  loadSettings,
+  webviewSwitch
 }
 
 export default connect(mapStateToProps, mapActionsToProps)(App)
