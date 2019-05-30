@@ -55,7 +55,7 @@ openWebviewDevtools(event, data) {
                 <Route exact path="/Home" component={ Home }/>
                 <Route exact path="/Settings" component={ Settings }/>
               </div>
-              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src="https://www.tradingview.com/chart/KyFTcT28/" />
+              <webview id="foo" preload={`file:///home/jordan/git/TailgoBinance/src/inject.js`} src={this.props.settings.webviewURL} />
           </AppStyle>
         );
     }
@@ -78,14 +78,16 @@ display: flex;
 
 
 div {
-  flex-basis: 30%
+  flex: 1;
+  max-width: 400px;
   background-color: #131722;
 
 }
 
 webview {
-  flex: 1
-  background-color: #131722;
+  flex: 1;
+  background-color: blue;
+  /* background-color: #131722; */
 
 }
 `

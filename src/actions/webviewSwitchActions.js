@@ -29,6 +29,10 @@ export const webviewSwitch = () => {
       recursive()
       return
     }
+    webview.send('Start')
+    // @DEV start a function in inject.js to make sure the page has loaded,
+    // @DEV send over initial data and start the main functions that
+    // @DEV reiligh on the page being loaded.
   }
   catch(err) {
     recursive()
@@ -36,7 +40,6 @@ export const webviewSwitch = () => {
   }
   webview.addEventListener('ipc-message', (event) => {
     // wait for event from webview and the send to the appropreat function
-    console.log('new event')
     const {type, payload} = event.channel
     switch (type) {
       case "SINGLEALERT" && alertLissner:
@@ -73,7 +76,6 @@ export const toggleAlertLissnerAction = (e) => {
 }
 
 const updateTicker = (payload) => {
-  console.log(payload)
   store.dispatch({
     type: UPDATE_TICKER,
     payload: payload

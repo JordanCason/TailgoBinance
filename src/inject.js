@@ -10,10 +10,7 @@ ipcRenderer.on('StopAlertLissner', () => {
 
 
 ipcRenderer.on('StartAlertLissner', () => {
-  console.log('#######')
-    console.log("in StartAlertLissner")
     searchingForSignal = true;
-    ipcRenderer.sendToHost('pong')
     signalCatch()
     })
 
@@ -53,36 +50,50 @@ const signalCatch = async() => {
     }
 }
 
-
-(async function checkForObjets() {
-  // check for objects we need before exacuting the main function
-  try {
-    console.log('try')
-    document.querySelector(".chart-loading-screen");
-    bilek_ticker = document.querySelector("#header-toolbar-symbol-search > div > input")
-    bilek_exchange = document.querySelector('.pane-legend-title__details > .pane-legend-title__wrap-text').innerHTML
-    bilek_tickerFull = document.querySelector('.pane-legend-title__description > .pane-legend-title__wrap-text').innerHTML
-  }
-  catch(err) {
-    console.log('catch')
-    await setTimeout(() => {checkForObjets()}, 2000)
-    return
-  }
-  console.log('Document ready')
-  mainFunction()
-})();
+ipcRenderer.on('Start', () => {
+  (async function checkForObjets() {
+    // @DEV check for objects we need before exacuting the main function
+    try {
+      console.log('try')
+      document.querySelector(".chart-loading-screen");
+      ticker = document.querySelector("#header-toolbar-symbol-search > div > input").value.split(':')
+      ticker = ticker.length === 2 ? ticker[1] : ticker[0]
+      _exchange = document.querySelector('.pane-legend-title__details > .pane-legend-title__wrap-text').innerHTML
+      _tickerFull = document.querySelector('.pane-legend-title__description > .pane-legend-title__wrap-text').innerHTML
+      if (ticker === '' || _exchange === '' || _tickerFull === '') {
+        throw "value still blank";
+      }
+    }
+    catch(err) {
+      console.log(err)
+      await setTimeout(() => {checkForObjets()}, 2000)
+      return
+    }
+    const payload = {
+      type: "CURRENT_TICKER",
+      payload: {
+        'exchange': _exchange,
+        'tickerFull': _tickerFull,
+        'ticker': ticker
+      }
+    }
+    ipcRenderer.sendToHost(payload)
+    // Set the current ticker at initial startup
+    console.log('Document ready')
+    mainFunction()
+  })();
+})
 
 const mainFunction = () => {
-  // @DEV for all functions needing access to DOM elements on load
-
-
   // ******* Section for returning current ticker and exchange *********
   let targetNode = document.querySelector(".chart-loading-screen");
   let config = { characterData:true, attributes: true, childList: false, subtree: false };
   let mutationCount=0
   const callback = async (mutation, observer) => {
+    // @DEV MutationObserver callback fires every time .chart-loading-screen node changes
     mutationCount++
     if (mutationCount == 2 ) {
+      // @DEV MutationObserver always fires twice so ignore the first one
       mutationCount = 0
       await setTimeout(() => {
         // @DEV setting a timeout of 5 millseconds because in every inctance I have checked
@@ -122,7 +133,6 @@ const mainFunction = () => {
   };
   let observer = new MutationObserver(callback);
   observer.observe(targetNode, config);
-
   const sendPaneChangePayload = (ticker, exchange, tickerFull) => {
     const payload = {
       type: "CURRENT_TICKER",

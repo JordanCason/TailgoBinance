@@ -25,45 +25,49 @@ class ManualOrder extends Component {
   render() {
     return (
       <ManualStyle>
-          <form className=''>
-            <div className='ticker'>
-              <h3>Buy ENJ</h3>
-              <i className='' >0.30129727 ETH</i>
-            </div>
-            <div className='inputcontainer'>
-            <label className=''>Price:</label>
+          <div>
+          </div>
+          <form>
+            { this.props.orderType === 'Limit' ? <div className='inputcontainer'>
+            <label>Price:</label>
               <div className='inputrow'>
-                <input className='' onChange={this.handleInput} value={this.state.price}  name='price'/>
-                <p className='base'>ETH</p>
+                <input onChange={this.handleInput} value={this.state.price}  name='price'/>
+                <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                : 'UKN'}</p>
+              </div>
+            </div> : <div></div>}
+            <div className='inputcontainer'>
+              <label>Amount:</label>
+              <div className='inputrow'>
+                <input onChange={this.handleInput} value={this.state.amount} name='amount'/>
+                <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                : 'UKN'}</p>
               </div>
             </div>
-            <div className='inputcontainer'>
-              <label className='' >Amount:</label>
-              <div className='inputrow'>
-                <input className='' onChange={this.handleInput} value={this.state.amount} name='amount'/>
-                <p className='base'>ETH</p>
-              </div>
-            </div>
-            <div className='inputcontainer'>
+            <div className='percencontainer'>
               <label className=''></label>
               <div className='percentagebuttons'>
-                <input className='button button4'  type='button' value='25%'/>
-                <input className='button button4'  type='button' value='50%'/>
-                <input className='button button4'  type='button' value='75%'/>
-                <input className='button button4'  type='button' value='100%'/>
+                <input className='button buttongray' type='button' value='25%'/>
+                <input className='button buttongray' type='button' value='50%'/>
+                <input className='button buttongray' type='button' value='75%'/>
+                <input className='button buttongray' type='button' value='100%'/>
               </div>
             </div>
             <div className='inputcontainer'>
               <label className=''>Total:</label>
               <div className='inputrow'>
-                <input className='' onChange={this.handleInput} value={this.state.total} name='total' />
-                <p className='base'>ETH</p>
+                <input onChange={this.handleInput} value={this.state.total} name='total' />
+                <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                  ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                  : 'UKN'}</p>
               </div>
             </div>
 
-            <div className='inputcontainer' >
+            <div className='submitcontainer' >
               <div className='submitbutton'>
-                <button className='button button1' type='button'>Buy ENJ</button>
+                <button className={this.props.side === 'BUY' ? 'button buttongreen' : 'button buttonred' } type='button'>{this.props.side} ENJ</button>
               </div>
             </div>
           </form>
@@ -73,6 +77,7 @@ class ManualOrder extends Component {
 }
 
 const mapStateToProps = state => ({
+  webviewSwitch: state.toggleAlertLissnerReducer,
 })
 
 const mapActionsToProps = {
@@ -82,14 +87,103 @@ export default connect(mapStateToProps, mapActionsToProps)(ManualOrder)
 
 const ManualStyle = styled.div`
 
-
 form {
   display: flex;
   flex-direction: column;
-  width: 50%;
+}
+
+form > div {
+  display flex;
+  flex-direction: column;
+}
+
+form > div > div {
+  display flex;
+  background: green;
+}
+
+form > div > div > p {
+  color: gray;
+  width: 32px;
+  background-color: white;
+  border: 0px solid white;
+
 }
 
 .inputcontainer {
+  padding: 5px 8px;
+}
+
+.percencontainer {
+  padding: 0px 8px;
+}
+
+.submitcontainer{
+  padding: 0px 8px;
+  padding-bottom: 20px;
+}
+.submitcontainer > div {
+  display: flex;
+}
+.submitcontainer > div > button {
+  flex: 1;
+}
+
+input {
+  flex: 1;
+  background-color: white;
+  border: 0px solid white;
+}
+
+input:focus {
+  outline: none;
+}
+
+.button {
+  border: none;
+  color: white;
+  padding: 5px 8px;
+  text-align: center;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.buttongray {
+  background-color: #e7e7e7;
+  color: black;
+  border: none;
+}
+
+.buttongray:hover {
+  background-color: #17629e;
+}
+
+.buttongreen {
+  background-color: #4CAF50;
+  color: black;
+  border: none;
+}
+
+.buttongreen:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.buttonred {
+  background-color: #f44336;
+  color: black;
+  border: none;
+}
+
+.buttonred:hover {
+  background-color: #f44336;
+  color: white;
+}
+
+
+.button4:hover {background-color: #17629e;}
+
+/* .inputcontainer {
   padding-left: 5px;
   padding-right: 20px;
 }
@@ -145,9 +239,14 @@ span {
   color: white;
   padding: 5px 8px;
   text-align: center;
-  -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
   cursor: pointer;
+}
+
+.tickerFull {
+  padding: 5px 8px;
+  text-align: center;
+  font-size: 16pt;
 }
 
 .button4 {
@@ -167,6 +266,6 @@ span {
   color: white;
 }
 
-.button4:hover {background-color: #17629e;}
+.button4:hover {background-color: #17629e;} */
 
 `

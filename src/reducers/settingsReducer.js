@@ -1,10 +1,15 @@
-import { SET_BINANCE_API_FULFILLED } from '../actions/settingsAction'
-import { LOAD_SETTINGS_FULFILLED } from '../actions/settingsAction'
+import {
+  SET_BINANCE_API_FULFILLED,
+  LOAD_SETTINGS_FULFILLED,
+  SET_WEBVIEW_URL_FULFILLED
+} from '../actions/settingsAction'
+
 const initialState = {
     binance: {
       'APIKEY': '',
       'APISECRET': ''
-    }
+    },
+    webviewURL: ''
 }
 
 export function settingsReducer(state = initialState, action) {
@@ -15,6 +20,11 @@ export function settingsReducer(state = initialState, action) {
           ...state,
           binance: payload
       }
+      case SET_WEBVIEW_URL_FULFILLED:
+      return {
+          ...state,
+          webviewURL: payload
+      }
       case LOAD_SETTINGS_FULFILLED:
       return {
           ...payload
@@ -23,7 +33,6 @@ export function settingsReducer(state = initialState, action) {
       return state
   }
 }
-
 
 
 // export function loadSettings(state = initialState, action) {
