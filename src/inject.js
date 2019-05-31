@@ -1,6 +1,7 @@
 const tabletojson = require('tabletojson');
 const {ipcRenderer} = require('electron')
 var searchingForSignal = false;
+let foundAlertbox = false
 
 console.log('injesct is here')
 ipcRenderer.on('StopAlertLissner', () => {
@@ -15,6 +16,99 @@ ipcRenderer.on('StartAlertLissner', () => {
     })
 
 const signalCatch = async() => {
+
+
+  let targetNode = document.querySelector("#overlap-manager-root");
+  let config = { characterData:true, attributes: true, childList: true, subtree: false };
+
+  const callback = (mutation, observer) => {
+
+    if (!foundAlertbox) {
+      try {
+        if (!searchingForSignal) {
+          observer.disconnect()
+          return
+        }
+        if (mutation["0"].target.firstChild.firstChild.childNodes["0"].innerText.split(' on ')[0] === 'Create Alert') {
+          foundAlertbox = true
+          ipcRenderer.sendToHost({
+              type: "CREATE_ALERT_POPUP",
+              payload: {
+                  isOpen: true,
+              }
+          })
+          document.querySelector('#header-toolbar-alerts').addEventListener("click", (obj) => {
+            // top toolbar alerts would messs up the exacution if clicked after the window was already open
+            foundAlertbox = false
+            ipcRenderer.sendToHost({
+                type: "CREATE_ALERT_POPUP",
+                payload: {
+                    isOpen: false,
+                }
+            })
+          }, {once : true})
+          // target variabls
+          submitbuttn = mutation[0].target.querySelector(".js-submit-button").parentNode.setAttribute("style", "display: none;");
+          cancelbutten = mutation[0].target.querySelector(".js-cancel-button")
+          checkboxbody = mutation[0].target.querySelector('form > fieldset > span:nth-child(8) > div:nth-child(2)') //.querySelector('.tv-control-checkbox').checked = true
+          exitbutton = mutation[0].target.querySelector(".js-dialog__close")
+          alertform = mutation[0].target.querySelector("form")
+          // display alerts checkbox
+          textarea = mutation[0].target.querySelector('.tv-control-textarea') //.value
+          // textbox = mutation[0].target.querySelector('form > fieldset > span.tv-control-fieldset__value.tv-alert-dialog__fieldset-value.tv-alert-dialog__fieldset-value--no-margin')
+
+          // remove Elements
+          textarea.setAttribute("style", "display: none;");
+          checkboxbody.setAttribute("style", "display: none;");
+          mutation[0].target.querySelector('form > fieldset').setAttribute("style", "margin: 0;");
+          mutation[0].target.querySelector('form > fieldset > label:nth-child(9)').setAttribute("style", "display: none;");
+          // message text next to textarea
+
+          // add and edit elements
+          newnode = document.createElement('div')
+          newnode.innerHTML = `
+          <style>
+          .FinishAuto {
+            padding: 30px 30px 30px 0px;
+            font-size: 14px;
+            font-weight: 700;
+          }
+
+          </style>
+          <div class='FinishAuto'>
+          Finish automated order in the panel to the left.
+          </div>
+          `
+          alertform.appendChild(newnode)
+          exitbutton.addEventListener("click", (obj) => {
+            // user click on exit button
+            foundAlertbox = false
+            ipcRenderer.sendToHost({
+                type: "CREATE_ALERT_POPUP",
+                payload: {
+                    isOpen: false,
+                }
+            })
+          }, {once : true})
+        }
+        else {
+          foundAlertbox = false
+        }
+      }
+      catch(err) {
+        if (err.message !== "Cannot read property 'firstChild' of null") {
+          // @DEV this err is expected for popup windows we are not looking for
+          throw err
+        }
+      }
+    }
+  }
+  let observer = new MutationObserver(callback);
+  observer.observe(targetNode, config);
+
+
+
+
     console.log('hello')
 
         if (document.getElementsByClassName("tv-alert-notification-dialog__subtitle")[0]) {
@@ -85,7 +179,23 @@ ipcRenderer.on('Start', () => {
 })
 
 const mainFunction = () => {
-  // ******* Section for returning current ticker and exchange *********
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // vvvvvvvv Section for returning current ticker and exchange vvvvvvvvv
   let targetNode = document.querySelector(".chart-loading-screen");
   let config = { characterData:true, attributes: true, childList: false, subtree: false };
   let mutationCount=0
@@ -145,6 +255,7 @@ const mainFunction = () => {
     ipcRenderer.sendToHost(payload)
   }
 }
+// ^^^^^^^^ Section for returning current ticker and exchange ^^^^^^^^^
 
 
   // Later, you can stop observing

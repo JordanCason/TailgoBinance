@@ -5,6 +5,7 @@ export const UPDATE_TICKER = "UPDATE_TICKER"
 export const UPDATE_TICKER_FULFILLED = 'UPDATE_TICKER_FULFILLED'
 
 export const WEBVIEW_SWITCH = "WEBVIEW_SWITCH"
+export const CREATE_ALERT_POPUP = "CREATE_ALERT_POPUP"
 
 
 let webview
@@ -51,6 +52,9 @@ export const webviewSwitch = () => {
       case "CURRENT_TICKER":
         updateTicker(payload)
         break;
+      case "CREATE_ALERT_POPUP":
+        store.dispatch(event.channel)
+        break;
       default:
     }
   })
@@ -59,6 +63,7 @@ export const webviewSwitch = () => {
     payload: true,
   }
 }
+
 
 export const toggleAlertLissnerAction = (e) => {
   if (e) {
