@@ -67,7 +67,7 @@ class ManualOrder extends Component {
 
             <div className='submitcontainer' >
               <div className='submitbutton'>
-                <button className={this.props.side === 'BUY' ? 'button buttongreen' : 'button buttonred' } type='button'>{this.props.side} ENJ</button>
+                <button className={this.props.side === 'BUY' ? 'button buttongreen' : 'button buttonred' } type='button'>{this.props.side} {this.props.webviewSwitch.currentTicker.ticker.slice(0,3)}</button>
               </div>
             </div>
           </form>

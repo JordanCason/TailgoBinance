@@ -79,7 +79,7 @@ display: flex;
 
 div {
   flex: 1;
-  max-width: 400px;
+  max-width: 450px;
   background-color: #131722;
 
 }
