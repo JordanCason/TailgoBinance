@@ -107,6 +107,7 @@ const HomeStyle = styled.div`
 
 .orders {
   display: flex;
+
 }
 
 nav {
@@ -181,6 +182,7 @@ nav > ul > li > div > .tickerFull {
 .orderTypeButtons > .activeTab {
   background-color: #2f3241;
 }
+
 
 
 /*

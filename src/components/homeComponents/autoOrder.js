@@ -2,13 +2,16 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import styled from 'styled-components'
 // import BigNumber from "./bignumber.js"
+import { sendAlertToWebviewAction } from '../../actions/webviewSwitchActions.js'
+
 
 class AutoOrder extends Component {
 
   constructor (props) {
     super(props);
     this.state = {
-      'type': '',
+      'activeTab': 'Limit',
+      'activeOrder': false,
       'update': {
         'frequancy': 1,
         'interval': 15,
@@ -18,8 +21,8 @@ class AutoOrder extends Component {
       'price': {
         'low': 5,
         'high': 25,
-        'cryptolow': '0.00000005',
-        'cryptohigh': '0.00000025',
+        'randomlow': '0.00000005',
+        'randomhigh': '0.00000025',
       }
     }
     this.handleInput = this.handleInput.bind(this);
@@ -27,14 +30,44 @@ class AutoOrder extends Component {
     this.handleUpdateInput = this.handleUpdateInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleActive = this.handleActive.bind(this);
+    this.handleCreate = this.handleCreate.bind(this);
   }
 
+  handleCreate = e => {
+    console.log(e.target.name)
+
+    if (e.target.name === 'Cancel') {
+      sendAlertToWebviewAction('Cancel')
+      return
+    }
+    console.log('past if')
+    if (!this.state.activeOrder) {
+      console.log('Must pick a side BUY / SELL')
+    }
+    console.log('past if 2')
+    if (this.props.webviewSwitch.createAlertPopup.isOpen) {
+      console.log('popup is alive')
+      //@DEV build the string to place in trading view alert textbox
+      if (e.target.name === 'Create') {
+        let setOrder =
+`event: ORDER,
+symbol: ${this.props.webviewSwitch.currentTicker.ticker},
+type: ${this.state.activeTab.toUpperCase()},
+side: ${this.state.activeOrder},
+update: ${this.state.update.frequancy.toString()}${this.state.update.frequancyUnit},
+interval: ${this.state.update.interval.toString()}${this.state.update.intervalUnit},
+low: ${this.state.price.randomlow},
+high: ${this.state.price.randomhigh},`
+        sendAlertToWebviewAction(setOrder)
+      }
+    }
+  }
 
   handleActive = e => {
-    console.log(e)
+    console.log(this.state)
     this.setState({
       ...this.state,
-      'activeTab': e.target.value
+      [e.target.name]: e.target.value
     })
   }
 
@@ -89,59 +122,112 @@ class AutoOrder extends Component {
       <AutoStyle>
       <div>
         <div className='orderTypeButtons'>
-        <input onClick={this.handleActive} className={this.state.activeTab === 'Limit' ? 'button activeTab' : 'button'} type='button' value='Limit'/>
-        <input onClick={this.handleActive} className={this.state.activeTab === 'Market' ? 'button activeTab' : 'button'} type='button' value='Market'/>
-        <input onClick={this.handleActive} className={this.state.activeTab === 'Follow' ? 'button activeTab' : 'button'} type='button' value='Follow'/>
+        <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Limit' ? 'button activeTab' : 'button'} type='button' value='Limit'/>
+        <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Market' ? 'button activeTab' : 'button'} type='button' value='Market'/>
+        <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Follow' ? 'button activeTab' : 'button'} type='button' value='Follow'/>
         </div>
       </div>
-      {this.state.activeTab === 'Follow' ?
-      <div className='autoOrderBody'>
-        <p>Update Interval:</p>
-        <div>
-          <div>
-          <p>Freqancy: every {this.state.update.frequancy} {this.state.update.frequancyUnit === 'M' ? 'Minutes' : 'Seconds' } </p>
-            <div>
-            <input onChange={this.handleUpdateInput} name='frequancy' className='' value={this.state.update.frequancy}/>
-            <button onClick={this.handleUpdateInput} name='frequancyUnit' className='button buttongray unit' value={this.state.update.frequancyUnit === 'M' ? 'S' : 'M' } type='button'>{this.state.update.frequancyUnit}</button>
+      <form>
+        <div className='sideContainer'>
+          {this.state.activeTab === 'Follow' ?
+          <div className='inputcontainer'>
+          <label>Update Interval:</label><br/>
+          <label>Freqancy: every {this.state.update.frequancy} {this.state.update.frequancyUnit === 'M' ? 'Minutes' : 'Seconds' }</label>
+            <div className='inputrow'>
+              <input onChange={this.handleUpdateInput} name='frequancy' value={this.state.update.frequancy}/>
+              <button onClick={this.handleUpdateInput} name='frequancyUnit' className='button buttongray unit' value={this.state.update.frequancyUnit === 'M' ? 'S' : 'M' } type='button'>{this.state.update.frequancyUnit}</button>
             </div>
           </div>
-          <p>+/-</p>
-          <div>
-            <p>Interval: every {this.state.update.interval} {this.state.update.intervalUnit === 'M' ? 'Minutes' : 'Seconds' }</p>
-            <div>
+          : <div style={{display: 'none'}}></div>}
+          {this.state.activeTab === 'Follow' ?
+          <div className='inputcontainer'>
+          <label>Price Interval: </label><br/>
+          <label>Low: {this.state.price.randomlow}</label>
+            <div className='inputrow'>
+              <input onChange={this.handlePriceInput} name='low' className='' value={this.state.price.low}/>
+              <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                : 'UKN'}</p>
+            </div>
+          </div>
+          : <div style={{display: 'none'}}></div>}
+          <div className='inputcontainer'>
+            <label>Amount:</label>
+            <div className='inputrow'>
+              <input onChange={this.handleInput} value='0.00000' name='amount'/>
+              <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                : 'UKN'}</p>
+            </div>
+          </div>
+          <div className='percencontainer'>
+            <label className=''></label>
+            <div className='percentagebuttons'>
+              <input className='button buttongray' type='button' value='25%'/>
+              <input className='button buttongray' type='button' value='50%'/>
+              <input className='button buttongray' type='button' value='75%'/>
+              <input className='button buttongray' type='button' value='100%'/>
+            </div>
+          </div>
+          <div className='submitcontainer' >
+            <div className='submitbutton'>
+              <button onClick={this.handleActive} name='activeOrder' value='BUY' className={this.state.activeOrder === 'BUY' ? 'button buttongray activeOrder' : 'button buttongray'} type='button'>BUY</button>
+              <button onClick={this.handleActive} name='activeOrder' value='SELL' className={this.state.activeOrder === 'SELL' ? 'button buttongray activeOrder' : 'button buttongray'} type='button'>SELL</button>
+            </div>
+          </div>
+
+          <div className='submitcontainer' >
+            <div className='submitbutton'>
+              <button name='Create' onClick={this.handleCreate} className='button buttongray'  type='button'>Create</button>
+              <button name='Cancel' onClick={this.handleCreate} className='button buttongray btnredhover' type='button'>Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div className='sideContainer'>
+          {this.state.activeTab === 'Follow' ?
+          <div className='inputcontainer'>
+          <label>Update Interval:</label><br/>
+          <label>Interval: every {this.state.update.interval} {this.state.update.intervalUnit === 'M' ? 'Minutes' : 'Seconds' }</label>
+            <div className='inputrow'>
             <input onChange={this.handleUpdateInput} name='interval' className='' value={this.state.update.interval}/>
             <button onClick={this.handleUpdateInput} name='intervalUnit' className='button buttongray unit' value={this.state.update.intervalUnit === 'M' ? 'S' : 'M' } type='button'>{this.state.update.intervalUnit}</button>
             </div>
           </div>
-        </div>
-        <p>Price Interval: </p>
-        <div>
-          <div>
-            <p>Low: {this.state.price.cryptolow}</p>
-            <div>
-              <input onChange={this.handlePriceInput} name='low' className='' value={this.state.price.low}/>
-            </div>
-          </div>
-          <p>+/-</p>
-          <div>
-            <p>High: {this.state.price.cryptohigh}</p>
-            <div>
+          : <div style={{display: 'none'}}></div>}
+            {this.state.activeTab === 'Follow' ?
+          <div className='inputcontainer'>
+          <label>Price Interval: </label><br/>
+          <label>High: {this.state.price.randomhigh}</label>
+            <div className='inputrow'>
               <input onChange={this.handlePriceInput} name='high' className='' value={this.state.price.high}/>
+              <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                : 'UKN'}</p>
+            </div>
+          </div>
+          : <div style={{display: 'none'}}></div>}
+          <div className='inputcontainer'>
+            <label></label>
+            <div className='inputrow'>
+            </div>
+          </div>
+          <div className='percencontainer'>
+            <label className=''></label>
+            <div className='percentagebuttons'>
+            </div>
+          </div>
+          <div className='submitcontainer' >
+            <div className='submitbutton'>
+            </div>
+          </div>
+
+          <div className='submitcontainer' >
+            <div className='submitbutton'>
             </div>
           </div>
         </div>
-      </div> : <div></div>}
-      <div>
-        <div>
-          <div className='submitbtn'>
-            <button onClick={this.handleSubmit} name='' className='button buttongray' type='button' >Submit</button>
-          </div>
-          <p></p>
-          <div className='cancelbtn'>
-            <button onClick={this.handleSubmit} name='' className='button buttongray' type='button'>Cancel</button>
-          </div>
-        </div>
-      </div>
+      </form>
+
 
       </AutoStyle>
     );
@@ -158,69 +244,65 @@ const mapActionsToProps = {
 export default connect(mapStateToProps, mapActionsToProps)(AutoOrder)
 
 const AutoStyle = styled.div`
-div {
+
+form {
+  display: flex;
+  flex-direction: row;
+}
+
+.sideContainer {
   display: flex;
   flex-direction: column;
+}
+
+.sideContainer > div {
 
 }
 
-div > div {
+.sideContainer > div > div {
+  display: flex;
+  background: green;
+}
+
+.sideContainer > div > div > p {
+  color: gray;
+  width: 32px;
+  background-color: white;
+  border: 0px solid white;
+
+}
+
+.inputcontainer {
+  padding: 5px 8px;
+}
+
+.inputcontainer label:first-child {
+  font-weight: bold;
+}
+
+.percencontainer {
+  padding: 0px 8px 20px 8px;
+}
+
+.submitcontainer{
+  padding: 0px 8px;
+  padding-bottom: 20px;
+}
+.submitcontainer > div {
+  display: flex;
+}
+.submitcontainer > div > button {
   flex: 1;
-  flex-direction: row;
-  padding: 0px 0px 5px 0px;
-  border: none;
-
 }
-input{
-  outline: none;
-  border: none;
+
+input {
+  flex: 1;
+  background-color: white;
+  border: 0px solid white;
 }
 
 input:focus {
   outline: none;
-
-}
-
-div > div > div {
-  display: flex;
-  flex-direction: column;
-
-}
-
-div > div > div > div {
-  display: flex;
-  flex-direction: row;
-
-}
-
-div > div > div > div > input {
-  flex: 1;
-}
-
-div > div > p {
-  min-width: 40px;
-}
-
-.unit {
-  max-width: 35px;
-  min-width: 35px;
-}
-
-.autoOrderBody {
-  margin: 0px 8px;
-}
-
-.autoOrderBody > p {
-  font-weight: bold;
-  padding-bottom: 8px;
-}
-
-.submitbtn {
-    margin: 20px 0px 20px 8px;
-}
-
-.cancelbtn {
-  margin: 20px 8px 20px 0px;
 }
 
 .button {
@@ -230,32 +312,52 @@ div > div > p {
   text-align: center;
   transition-duration: 0.4s;
   cursor: pointer;
-
 }
 
-.button:focus {
-    outline: none;
+.button {
+  outline: none;
 }
-
 
 .buttongray {
-  background-color: #e7e7e7;
+  background-color: #757882;
   color: black;
   border: none;
 }
 
 .buttongray:hover {
   background-color: #17629e;
+  color: white;
 }
 
+.activeOrder {
+  background-color: #17629e;
+  outline: none;
+  color: white;
+}
+
+.buttongreen {
+  background-color: #4CAF50;
+  color: black;
+  border: none;
+}
+
+.buttongreen:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.buttonred {
+  background-color: #f44336;
+  color: black;
+  border: none;
+}
+
+.btnredhover:hover {
+  background-color: #f44336;
+  color: white;
 }
 
 
 .button4:hover {background-color: #17629e;}
-
-.orderTypeButtons > .activeTab {
-  background-color: #2f3241;
-}
-
 
 `

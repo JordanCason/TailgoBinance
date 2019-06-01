@@ -33,7 +33,8 @@ export function toggleAlertLissnerReducer(state = initialState, action) {
             currentTicker: payload,
         }
         case CREATE_ALERT_POPUP:
-        console.log(type)
+        // @DEV the window for creating an Alert is open or not.
+        // console.log(type)
         return {
             ...state,
             createAlertPopup: payload,

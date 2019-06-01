@@ -149,7 +149,7 @@ input:focus {
 }
 
 .buttongray {
-  background-color: #e7e7e7;
+  background-color: #757882;
   color: black;
   border: none;
 }

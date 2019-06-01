@@ -9,6 +9,7 @@ import Test from "./components/test.js";
 import Settings from "./components/settings.js";
 import { loadSettings } from './actions/settingsAction.js'
 import { webviewSwitch } from './actions/webviewSwitchActions'
+//const test = require('./inject.js')
 const electron = window.require("electron")
 //cons t { default: installExtension, REDUX_DEVTOOLS } = window.require('electron-devtools-installer');
 

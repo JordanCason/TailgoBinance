@@ -31,6 +31,8 @@ export const webviewSwitch = () => {
       return
     }
     webview.send('Start')
+    webview.openDevTools()
+
     // @DEV start a function in inject.js to make sure the page has loaded,
     // @DEV send over initial data and start the main functions that
     // @DEV reiligh on the page being loaded.
@@ -61,6 +63,19 @@ export const webviewSwitch = () => {
   return {
     type: WEBVIEW_SWITCH,
     payload: true,
+  }
+}
+
+
+export const sendAlertToWebviewAction = (alertString) => {
+  // @dev this is the json object that gets placed in the comment textbox in
+  // @dev the create alert panel on tradingview
+  console.log('incertAlertStringInTextbox')
+  webview.send('incertAlertStringInTextbox', alertString)
+
+  return {
+    type: TOGGLE_ALERT_LISSNER,
+    payload: ''
   }
 }
 
