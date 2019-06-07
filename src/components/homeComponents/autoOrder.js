@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import styled from 'styled-components'
+import {BigNumber} from 'bignumber.js';
 // import BigNumber from "./bignumber.js"
 import { sendAlertToWebviewAction } from '../../actions/webviewSwitchActions.js'
 
@@ -23,7 +24,8 @@ class AutoOrder extends Component {
         'high': 25,
         'randomlow': '0.00000005',
         'randomhigh': '0.00000025',
-      }
+      },
+      'amount': ''
     }
     this.handleInput = this.handleInput.bind(this);
     this.handlePriceInput = this.handlePriceInput.bind(this);
@@ -49,16 +51,29 @@ class AutoOrder extends Component {
       console.log('popup is alive')
       //@DEV build the string to place in trading view alert textbox
       if (e.target.name === 'Create') {
-        let setOrder =
+        if (this.state.activeTab !== 'Tracker') {
+          let setOrder =
+`event: ORDER,
+symbol: ${this.props.webviewSwitch.currentTicker.ticker},
+type: ${this.state.activeTab.toUpperCase()},
+side: ${this.state.activeOrder},
+amount: ${this.state.amount}`
+          sendAlertToWebviewAction(setOrder)
+        }
+        if (this.state.activeTab === 'Tracker') {
+          let setOrder =
 `event: ORDER,
 symbol: ${this.props.webviewSwitch.currentTicker.ticker},
 type: ${this.state.activeTab.toUpperCase()},
 side: ${this.state.activeOrder},
 update: ${this.state.update.frequancy.toString()}${this.state.update.frequancyUnit},
 interval: ${this.state.update.interval.toString()}${this.state.update.intervalUnit},
-low: ${this.state.price.randomlow},
-high: ${this.state.price.randomhigh},`
-        sendAlertToWebviewAction(setOrder)
+low: ${this.state.price.low},
+high: ${this.state.price.high},
+amount: ${this.state.amount}`
+          sendAlertToWebviewAction(setOrder)
+        }
+
       }
     }
   }
@@ -98,15 +113,26 @@ high: ${this.state.price.randomhigh},`
     for (var i=0; i < 8 - e.target.value.length; i++) {
       number += '0'
     }
-
-    console.log(this.state)
     this.setState({
       ...this.state,
       'price': {
         ...this.state.price,
         [e.target.name]: e.target.value,
-        ['crypto' + e.target.name]: number + e.target.value.toString()
+        ['random' + e.target.name]: number + e.target.value.toString()
       }
+    })
+  }
+
+  handleAmountInput = e => {
+    console.log(this.state)
+    console.log(e.target.name)
+    console.log(e.target.value)
+    if (e.target.value.length > 10 || !/^(\d*\.?\d*)$/.test(e.target.value)) {
+      return
+    }
+    this.setState({
+      ...this.state,
+        [e.target.name]: e.target.value
     })
   }
 
@@ -124,12 +150,12 @@ high: ${this.state.price.randomhigh},`
         <div className='orderTypeButtons'>
         <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Limit' ? 'button activeTab' : 'button'} type='button' value='Limit'/>
         <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Market' ? 'button activeTab' : 'button'} type='button' value='Market'/>
-        <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Follow' ? 'button activeTab' : 'button'} type='button' value='Follow'/>
+        <input onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Tracker' ? 'button activeTab' : 'button'} type='button' value='Tracker'/>
         </div>
       </div>
       <form>
         <div className='sideContainer'>
-          {this.state.activeTab === 'Follow' ?
+          {this.state.activeTab === 'Tracker' ?
           <div className='inputcontainer'>
           <label>Update Interval:</label><br/>
           <label>Freqancy: every {this.state.update.frequancy} {this.state.update.frequancyUnit === 'M' ? 'Minutes' : 'Seconds' }</label>
@@ -139,7 +165,7 @@ high: ${this.state.price.randomhigh},`
             </div>
           </div>
           : <div style={{display: 'none'}}></div>}
-          {this.state.activeTab === 'Follow' ?
+          {this.state.activeTab === 'Tracker' ?
           <div className='inputcontainer'>
           <label>Price Interval: </label><br/>
           <label>Low: {this.state.price.randomlow}</label>
@@ -154,9 +180,9 @@ high: ${this.state.price.randomhigh},`
           <div className='inputcontainer'>
             <label>Amount:</label>
             <div className='inputrow'>
-              <input onChange={this.handleInput} value='0.00000' name='amount'/>
+              <input onChange={this.handleAmountInput} value={this.state.amount} name='amount'/>
               <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
-                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(0,-3)
                 : 'UKN'}</p>
             </div>
           </div>
@@ -184,7 +210,7 @@ high: ${this.state.price.randomhigh},`
           </div>
         </div>
         <div className='sideContainer'>
-          {this.state.activeTab === 'Follow' ?
+          {this.state.activeTab === 'Tracker' ?
           <div className='inputcontainer'>
           <label>Update Interval:</label><br/>
           <label>Interval: every {this.state.update.interval} {this.state.update.intervalUnit === 'M' ? 'Minutes' : 'Seconds' }</label>
@@ -194,7 +220,7 @@ high: ${this.state.price.randomhigh},`
             </div>
           </div>
           : <div style={{display: 'none'}}></div>}
-            {this.state.activeTab === 'Follow' ?
+            {this.state.activeTab === 'Tracker' ?
           <div className='inputcontainer'>
           <label>Price Interval: </label><br/>
           <label>High: {this.state.price.randomhigh}</label>

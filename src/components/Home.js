@@ -5,7 +5,7 @@ import styled from 'styled-components'
 // import { toggleAlertLissnerAction } from '../actions/weabviewSwitchActions'
 import {settingsSetBinanceApiAction, settingsGitBinanceApiAction, loadSettings} from '../actions/settingsAction.js'
 import { exicuteNode } from '../actions/testIpcSwitchAction'
-import { getTickerPrice, TestOrder1, TestOrder2, checkOrders, testTime, initBinanceApi, getBallance } from '../actions/binanceApiActions.js'
+import { getTickerPrice, testTime, initBinanceApi, getBallance } from '../actions/binanceApiActions.js'
 
 class Home extends Component {
 
@@ -16,9 +16,6 @@ class Home extends Component {
       <p>Auto Trading</p><br/>
       <button name="lissining" type='button' onClick={() => {console.log(this.props)}}>props</button><br/>
       <button name="lissining" type='button' onClick={() => {getTickerPrice()}}>ticker Price</button><br/>
-      <button name="lissining" type='button' onClick={() => {TestOrder1()}}>TestOrder1</button><br/>
-      <button name="lissining" type='button' onClick={() => {TestOrder2()}}>TestOrder2</button><br/>
-      <button name="lissining" type='button' onClick={() => {checkOrders()}}>checkOrders</button><br/>
       <button name="lissining" type='button' onClick={() => {testTime('OPS')}}>testeTime</button><br/>
       <button name="lissining" type='button' onClick={() => {this.props.initBinanceApi()}}>initBinanceApi</button><br/>
       <button name="lissining" type='button' onClick={() => {getBallance()}}>getBallance</button><br/>

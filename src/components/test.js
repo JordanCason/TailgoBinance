@@ -12,7 +12,23 @@ class Home extends Component {
   constructor (props) {
     super(props);
     this.state = {
-      'activeTab': 'Limit'
+      'activeTab': 'Limit',
+      'manualOrder': {
+        lable1: 'Update:',
+        title1: 'How offent to update the price',
+        lable2: 'Low Price',
+        title2: '',
+        autoOrder: false,
+        side: 'BUY'
+      },
+      'autoOrder': {
+        lable1: 'Interval:',
+        title1: 'Amount of random time to append to the update check',
+        lable2: 'High Price:',
+        title2: '',
+        autoOrder: true,
+        side: 'SELL'
+      }
     }
     this.handleActive = this.handleActive.bind(this);
 }
@@ -67,23 +83,15 @@ class Home extends Component {
               <li >
                 <a className='tempclick'>Manual Order</a>
                 <div>
-                  <div className='orderTypeButtons'>
-                    <input onClick={this.handleActive} className={this.state.activeTab === 'Limit' ? 'button activeTab' : 'button'} type='button' value='Limit'/>
-                    <input onClick={this.handleActive} className={this.state.activeTab === 'Market' ? 'button activeTab' : 'button'} type='button' value='Market'/>
-                    <input onClick={this.handleActive} className={this.state.activeTab === 'Follow' ? 'button activeTab' : 'button'} type='button' value='Follow'/>
-                  </div>
-                  <div className="tickerFull">{this.props.webviewSwitch.currentTicker.tickerFull
-                    ? this.props.webviewSwitch.currentTicker.tickerFull : 'LOADING...'}</div>
                   <div className='orders'>
-                    <ManualOrder side='BUY' orderType={this.state.activeTab}/>
-                    <ManualOrder side='SELL' orderType={this.state.activeTab}/>
+                    <ManualOrder orderType={this.state.activeTab} config={this.state.manualOrder}/>
                   </div>
                 </div>
               </li>
               <li>
                 <a className='tempclick' >Auto Order</a>
                 <div>
-                  <AutoOrder />
+                  <ManualOrder orderType={this.state.activeTab} config={this.state.autoOrder}/>
                 </div>
               </li>
             </ul>
@@ -149,41 +157,6 @@ nav > ul > li > a:hover {
 nav > ul > li > div {
     display: none;
 }
-
-nav > ul > li > div > .tickerFull {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  padding: 10px 0px
-}
-
-.orderTypeButtons {
- display: flex;
- flex-grow: 1
-}
-
-.orderTypeButtons > input {
- flex: 1;
- color: white;
- padding: 10px 8px;
- background-color: #131722;
- transition-duration: 0.4s;
- border: none;
-}
-
-.orderTypeButtons > input:focus {
-  outline: none;
-}
-
-.orderTypeButtons > input:hover {
-  background-color: #2f3241;
-}
-
-.orderTypeButtons > .activeTab {
-  background-color: #2f3241;
-}
-
-
 
 /*
 #131722

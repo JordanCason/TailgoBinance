@@ -121,70 +121,43 @@ export const testTime = (countType) => {
 }
 
 
-export const checkOrders = async(ticker) => {
-    let msg = {
-        commission: "0.04300000",
-        commissionAsset: "ENJ",
-        creationTime: 1543634966872,
-        eventTime: 1543635053271,
-        eventType: "executionReport",
-        executionType: "TRADE",
-        icebergQuantity: "0.00000000",
-        isBuyerMaker: true,
-        isOrderWorking: false,
-        lastTradeQuantity: "43.00000000",
-        newClientOrderId: "1qqPAILOPeenUw4w7ElN6R",
-        orderId: 20302799,
-        orderRejectReason: "NONE",
-        orderStatus: "PARTIALLY_FILLED",
-        orderTime: 1543635053271,
-        orderType: "LIMIT",
-        originalClientOrderId: "null",
-        price: "0.00023868",
-        priceLastTrade: "0.00023868",
-        quantity: "55.00000000",
-        side: "BUY",
-        stopPrice: "0.00000000",
-        symbol: "ENJETH",
-        timeInForce: "GTC",
-        totalQuoteTradeQuantity: "0.01026324",
-        totalTradeQuantity: "43.00000000",
-        tradeId: 1785619,
-    };
-
-
-}
-
-
-export const TestOrder1 = async(ticker) => {
-  const order = {
-    eventType: 'ORDER',
-    symbol: 'ENJETH',
-    side: 'BUY',
-    type: 'TRACKER',
-    interval: 10,
-    quantity: '1000'
-  }
-  signalHandler(order)
-}
-
-export const TestOrder2 = async(ticker) => {
-  const order = {
-    eventType: 'ORDER',
-    symbol: 'ENJETH',
-    side: 'SELL',
-    type: 'TRACKER',
-    interval: 20,
-    quantity: '300'
-  }
-  signalHandler(order)
-}
-
+// export const checkOrders = async(ticker) => {
+//     let msg = {
+//         commission: "0.04300000",
+//         commissionAsset: "ENJ",
+//         creationTime: 1543634966872,
+//         eventTime: 1543635053271,
+//         eventType: "executionReport",
+//         executionType: "TRADE",
+//         icebergQuantity: "0.00000000",
+//         isBuyerMaker: true,
+//         isOrderWorking: false,
+//         lastTradeQuantity: "43.00000000",
+//         newClientOrderId: "1qqPAILOPeenUw4w7ElN6R",
+//         orderId: 20302799,
+//         orderRejectReason: "NONE",
+//         orderStatus: "PARTIALLY_FILLED",
+//         orderTime: 1543635053271,
+//         orderType: "LIMIT",
+//         originalClientOrderId: "null",
+//         price: "0.00023868",
+//         priceLastTrade: "0.00023868",
+//         quantity: "55.00000000",
+//         side: "BUY",
+//         stopPrice: "0.00000000",
+//         symbol: "ENJETH",
+//         timeInForce: "GTC",
+//         totalQuoteTradeQuantity: "0.01026324",
+//         totalTradeQuantity: "43.00000000",
+//         tradeId: 1785619,
+//     };
+//
+//
+// }
 
 export const signalHandler = async(msg) => {
   if (msg.executionType === 'NEW') {
     //@DEV new exacution order came in for the excange
-    console.log(msg)
     orderTracker = {
         ...orderTracker,
         [msg.orderId]: msg
@@ -195,8 +168,8 @@ export const signalHandler = async(msg) => {
   }
   if (msg.orderStatus === "PARTIALLY_FILLED") {
     return
-  } else if (msg.eventType === "ORDER" ) {
-    // @DEV are custom event type for placing orders
+  } else if (msg.event === "ORDER" ) {
+    // @DEV our custom event type for placing orders
     sortOrder(msg)
   }
 }
@@ -211,10 +184,10 @@ let customId = 0
 export const placeTrackingOrder = async(msg) => {
   let book = await client.book({ symbol: msg.symbol })
   // bid and ask add random dust to the price to try to throw off frontrunning detection
-  let bid = BigNumber(book.bids[0].price).minus((Math.random() *
-  (0.00000012 - 0.00000001) + 0.00001001).toFixed(8)).toFixed(8)
-  let ask = BigNumber(book.asks[0].price).plus((Math.random() *
-  (0.00000012 - 0.00000001) + 0.00001001).toFixed(8)).toFixed(8)
+  let bid = BigNumber(book.bids[0].price).plus('0.' + Math.floor(Math.random()
+  * (msg.high - msg.low) + msg.low).toString().padStart(8, '0')).toFixed(8)
+  let ask = BigNumber(book.asks[0].price).minus('0.' + Math.floor(Math.random()
+  * (msg.high - msg.low) + msg.low).toString().padStart(8, '0')).toFixed(8)
   let newOrderPrice = msg.side === 'BUY' ? bid : ask
   let _newOrderPrice = newOrderPrice
   let limit = await count('OPS')
@@ -224,19 +197,19 @@ export const placeTrackingOrder = async(msg) => {
   let response = await client.order({
     symbol: msg.symbol,
     side: msg.side,
-    quantity: msg.quantity,
+    quantity: msg.amount,
     price: newOrderPrice,
   }).catch((err) => {
-    // console.log(err.message)
-    // console.log(err.name)
     if (err.message === 'Account has insufficient balance for requested action.') {
-      console.log('Not enough funds in acccout to place that order')
+      console.error('Not enough funds in acccout to place that order')
     }
   })
   if (!response) {
-    // @DEV if the order had an error or is response obect is empty for any
-    // @DEV reason than just return the placeTrackingOrder function
-    // @DEV all errors should be handled in the .catch()
+    /*********************
+    @DEV if the order had an error or is response obect is empty for any
+    reason than just return the placeTrackingOrder function
+    all errors should be handled in the .catch()
+    *********************/
     console.log('in undefined')
     return
   }
@@ -246,9 +219,12 @@ export const placeTrackingOrder = async(msg) => {
     ...msg,
     response: response,
   }
-  // @DEV bid and ask exist in the scope of the who placeTrackingOrder
-  // @DEV This web socket sets bid and ask everytime the values change
-  const clean = client.ws.partialDepth({ symbol: msg.symbol, level: 5 }, async(depth) => {
+  /*********************
+  @DEV bid and ask exist in the scope of the who placeTrackingOrder
+  This web socket sets bid and ask everytime the values change
+  *********************/
+  const clean = client.ws.partialDepth({ symbol: msg.symbol, level: 5 },
+  async(depth) => {
     bid = depth.bids[0].price
     ask = depth.asks[0].price
   })
@@ -257,28 +233,36 @@ export const placeTrackingOrder = async(msg) => {
   const recursive = () => {
     // @DEV setup for recursive function calls and sleep for x seconds
     setTimeout(() => {
+      console.log()
       checkposition()
-    }, msg.interval * 1000)
+    }, Math.floor(Math.random() * (0 - msg.interval) + msg.update))
   }
   const checkposition = async() => {
-    // @DEV check the position of the order to see if its still current
-    // @DEV if it is current call the recursive function again
-    // @DEV if its not then continue to the canselOrder function
+    /*********************
+    @DEV check the position of the order to see if its still current
+    if it is current call the recursive function again
+    if its not then continue to the canselOrder function
+    *********************/
     attempt = 0
     try {
       _newOrderPrice = msg.side === 'BUY' ? bid : ask
       if ( _newOrderPrice !== newOrderPrice ) {
-        // @DEV Depending on the order side, if the bid or ask has changed
-        // @DEV continue. If not than jump back to recursive.
+        /*********************
+        @DEV Depending on the order side, if the bid or ask has changed
+        continue. If not than jump back to recursive.
+        *********************/
         newOrderPrice = msg.side === 'BUY' ?
-        BigNumber(bid).minus((Math.random() *
-        (0.00000012 - 0.00000001) + 0.00001001).toFixed(8)).toFixed(8) :
-        BigNumber(ask).plus((Math.random() *
-        (0.00000012 - 0.00000001) + 0.00001001).toFixed(8)).toFixed(8)
+        BigNumber(bid).plus('0.' + Math.floor(Math.random() *
+        (msg.high - msg.low) + msg.low).toString().padStart(8, '0')).toFixed(8) :
+        BigNumber(ask).minus('0.' + Math.floor(Math.random() *
+        (msg.high - msg.low) + msg.low).toString().padStart(8, '0')).toFixed(8)
+        console.log(`TRACKER: bid: ${bid} new: ${newOrderPrice}`)
         limit = await count('OPS').then((limit) => {
           if ( !limit.rateLimitReached ) {
-            // @DEV if the rate limit has not bin hit than cancel the order
-            // @DEV if not than jump back up to recursive
+            /*********************
+            @DEV if the rate limit has not bin hit than cancel the order
+            if not than jump back up to recursive
+            *********************/
             cancelOrder()
           } else {
             recursive()
@@ -323,7 +307,7 @@ export const placeTrackingOrder = async(msg) => {
           response: await client.order({
             symbol: msg.symbol,
             side: msg.side,
-            quantity: msg.quantity,
+            quantity: msg.amount,
             price: newOrderPrice,
           })
         }

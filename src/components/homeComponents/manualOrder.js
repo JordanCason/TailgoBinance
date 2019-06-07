@@ -1,37 +1,254 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import styled from 'styled-components'
+import { sendAlertToWebviewAction } from '../../actions/webviewSwitchActions.js'
+import {BigNumber} from 'bignumber.js';
 
 class ManualOrder extends Component {
 
+
   constructor (props) {
     super(props);
-    this.state = {}
+    this.state = {
+      'activeTab': 'Limit',
+      'activeOrder': false,
+      'update': {
+        'frequancy': 1,
+        'interval': 15,
+        'frequancyUnit': 'M',
+        'intervalUnit': 'S'
+      },
+      'priceRange': {
+        'low': 5,
+        'high': 25,
+        'randomlow': '0.00000005',
+        'randomhigh': '0.00000025',
+      },
+      'buyAmount': '',
+      'buyPrice': '',
+      'buyTotal': '',
+      'sellAmount': '',
+      'sellPrice': '',
+      'sellTotal': '',
+    }
     this.handleInput = this.handleInput.bind(this);
+    this.handlePriceInput = this.handlePriceInput.bind(this);
+    this.handleUpdateInput = this.handleUpdateInput.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleActive = this.handleActive.bind(this);
+    this.handleCreate = this.handleCreate.bind(this);
+  }
+
+  handleCreate = e => {
+    console.log('here')
+    if (e.target.name === 'Cancel') {
+      sendAlertToWebviewAction('Cancel')
+      return
+    }
+    if (!this.state.activeOrder) {
+      console.error('Must pick a side BUY / SELL')
+      return
+    }
+    let price = this.state.activeOrder === 'BUY' ? this.state.buyPrice : this.state.sellPrice
+    let amount = this.state.activeOrder === 'BUY' ? this.state.buyAmount : this.state.sellAmount
+    if (this.props.webviewSwitch.createAlertPopup.isOpen) {
+      console.error('alert window must be open')
+      //@DEV build the string to place in trading view alert textbox
+      if (e.target.name === 'Create') {
+        if (this.state.activeTab !== 'Tracker') {
+          let setOrder =
+`event: ORDER,
+symbol: ${this.props.webviewSwitch.currentTicker.ticker},
+type: ${this.state.activeTab.toUpperCase()},
+side: ${this.state.activeOrder},
+amount: ${amount}`
+console.log(setOrder)
+          //sendAlertToWebviewAction(setOrder)
+        }
+        if (this.state.activeTab === 'Tracker') {
+          let setOrder =
+`event: ORDER,
+symbol: ${this.props.webviewSwitch.currentTicker.ticker},
+type: ${this.state.activeTab.toUpperCase()},
+side: ${this.state.activeOrder},
+update: ${this.state.update.frequancy.toString()}${this.state.update.frequancyUnit},
+interval: ${this.state.update.interval.toString()}${this.state.update.intervalUnit},
+low: ${this.state.priceRange.low},
+high: ${this.state.priceRange.high},
+amount: ${amount}`
+console.log(setOrder)
+          //sendAlertToWebviewAction(setOrder)
+        }
+        this.setState({
+          ...this.state,
+          'activeOrder': false
+        })
+      }
+    }
+  }
+
+
+  handleActiveOrder = e => {
+    if (this.props.config.autoOrder === false) {
+      if (e.target.name === 'Cancel') {
+        sendAlertToWebviewAction('Cancel')
+        return
+      }
+      if (!this.props.binaceApi.apiLoaded) {
+        console.error('Exchange not connected')
+        return
+      }
+      // place an order
+      console.log('Place Manual Order')
+    }
+    this.setState({
+      ...this.state,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  handleActive = e => {
+    this.setState({
+      ...this.state,
+      'buyAmount': '',
+      'buyPrice': '',
+      'buyTotal': '',
+      'sellAmount': '',
+      'sellPrice': '',
+      'sellTotal': '',
+      [e.target.name]: e.target.value
+    })
   }
 
   handleInput = e => {
-    this.setState({[e.target.name]: e.target.value})
+    let buyTotal = ''
+    let sellTotal = ''
+    if (!/^(\d*\.?\d*)$/.test(e.target.value)) {
+      // @DEV only allow digits and one period in the input box
+      return
+    }
+    let value = e.target.value.split('.')
+    // @DEV If a decimal value is longer than 8 digits, slice them off.
+      if ( value.length > 1 && value[1].length > 8 ) {
+        value = value[0] + '.' + value[1].slice(0,8)
+      }
+
+      if (/(buyPrice|buyAmount)/.test(e.target.name)) {
+        // @DEV calculate the total buy side
+        if (e.target.name === 'buyPrice') {
+          buyTotal = BigNumber(e.target.value).multipliedBy(this.state.buyAmount).toFixed(8)
+        }
+        if (e.target.name === 'buyAmount') {
+          buyTotal = BigNumber(this.state.buyPrice).multipliedBy(e.target.value).toFixed(8)
+        }
+          buyTotal = buyTotal.replace(/(NaN|\.?0*$)/, '')
+        this.setState({
+          ...this.state,
+          [e.target.name]: typeof(value) === 'string' ? value : e.target.value,
+          'buyTotal': buyTotal
+        })
+      }
+
+      if (/(sellPrice|sellAmount)/.test(e.target.name)) {
+        // @DEV calculate the total sell side
+        if (e.target.name === 'sellPrice') {
+          sellTotal = BigNumber(e.target.value).multipliedBy(this.state.sellAmount).toFixed(8)
+        }
+        if (e.target.name === 'sellAmount') {
+          sellTotal = BigNumber(this.state.sellPrice).multipliedBy(e.target.value).toFixed(8)
+        }
+        sellTotal = sellTotal.replace(/(NaN|\.?0*$)/, '')
+        this.setState({
+          ...this.state,
+          [e.target.name]: typeof(value) === 'string' ? value : e.target.value,
+          'sellTotal': sellTotal
+        })
+
+      }
   }
+
+  handleUpdateInput = e => {
+    console.log(this.state)
+    this.setState({
+      ...this.state,
+      'update': {
+        ...this.state.update,
+        [e.target.name]: e.target.value
+      }
+    })
+  }
+
+  handlePriceInput = e => {
+    if (e.target.value.length > 8 || !/^\d*$/.test(e.target.value)) {
+      return
+    }
+    var number = '0.'
+    for (var i=0; i < 8 - e.target.value.length; i++) {
+      number += '0'
+    }
+    this.setState({
+      ...this.state,
+      'priceRange': {
+        ...this.state.priceRange,
+        [e.target.name]: e.target.value,
+        ['random' + e.target.name]: number + e.target.value.toString()
+      }
+    })
+  }
+
+  // handleAmountInput = e => {
+  //   console.log(this.state)
+  //   console.log(e.target.name)
+  //   console.log(e.target.value)
+  //   if (e.target.value.length > 10 || !/^(\d*\.?\d*)$/.test(e.target.value)) {
+  //     return
+  //   }
+  //   this.setState({
+  //     ...this.state,
+  //       [e.target.name]: e.target.value
+  //   })
+  // }
 
   handleSubmit = (e) => {
     e.preventDefault()
-    this.props.settingsSetBinanceApiAction(this.state.APIKEY, this.state.APISECRET)
   }
-
-
 
   render() {
     return (
       <ManualStyle>
+
           <div>
+            <div className='orderTypeButtons'>
+            <button onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Limit' ? 'activeTab' : ''} value='Limit'>Limit</button>
+            <button onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Market' ? 'activeTab' : ''} value='Market'>Market</button>
+            <button onClick={this.handleActive} name='activeTab' className={this.state.activeTab === 'Tracker' ? ' activeTab' : ''} value='Tracker'>Tracker</button>
+            </div>
           </div>
-          <form>
-            { this.props.orderType === 'Limit' ? <div className='inputcontainer'>
+          <div className="tickerFull">{this.props.webviewSwitch.currentTicker.tickerFull
+            ? this.props.webviewSwitch.currentTicker.tickerFull : 'LOADING...'}
+            </div>
+          <div className='bodycontainer'>
+          <div className='columncontainer'>
+            { this.state.activeTab === 'Tracker' ?
+            <div className='inputcontainer'>
+            <label title=''>Update: {this.state.update.frequancy} {this.state.update.frequancyUnit === 'M' ? 'Minutes' : 'Seconds' }</label>
+              <div className='inputrow'>
+                <input onChange={this.handleUpdateInput} name='frequancy' value={this.state.update.frequancy}/>
+                <button onClick={this.handleUpdateInput} name='frequancyUnit' className='buttongray unit' value={this.state.update.frequancyUnit === 'M' ? 'S' : 'M' }>{this.state.update.frequancyUnit}</button>
+              </div>
+            </div> : <div></div>}
+            { this.state.activeTab === 'Tracker' ?
+            <div className='inputcontainer'>
+            <label title=''>Low Price: {this.state.priceRange.randomlow}</label>
+              <div className='inputrow'>
+                <input onChange={this.handlePriceInput} name='low' value={this.state.priceRange.low}/>
+              </div>
+            </div> : <div></div>}
+            { this.state.activeTab !== 'Tracker' ?
+            <div className='inputcontainer'>
             <label>Price:</label>
               <div className='inputrow'>
-                <input onChange={this.handleInput} value={this.state.price}  name='price'/>
+                <input onChange={this.handleInput} value={this.state.buyPrice}  name='buyPrice'/>
                 <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
                 ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
                 : 'UKN'}</p>
@@ -40,37 +257,124 @@ class ManualOrder extends Component {
             <div className='inputcontainer'>
               <label>Amount:</label>
               <div className='inputrow'>
-                <input onChange={this.handleInput} value={this.state.amount} name='amount'/>
+                <input onChange={this.handleInput} value={this.state.buyAmount} name='buyAmount'/>
                 <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
-                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(0,-3)
                 : 'UKN'}</p>
               </div>
             </div>
             <div className='percencontainer'>
               <label className=''></label>
               <div className='percentagebuttons'>
-                <input className='button buttongray' type='button' value='25%'/>
-                <input className='button buttongray' type='button' value='50%'/>
-                <input className='button buttongray' type='button' value='75%'/>
-                <input className='button buttongray' type='button' value='100%'/>
+                <button className='buttongray'>25%</button>
+                <button className='buttongray'>50%</button>
+                <button className='buttongray'>75%</button>
+                <button className='buttongray'>100%</button>
               </div>
             </div>
+            { this.state.activeTab !== 'Tracker' ?
             <div className='inputcontainer'>
               <label className=''>Total:</label>
               <div className='inputrow'>
-                <input onChange={this.handleInput} value={this.state.total} name='total' />
+                <input onChange={this.handleInput} value={this.state.buyTotal} name='total' />
                 <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
                   ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
                   : 'UKN'}</p>
               </div>
             </div>
-
+            : null }
+            {this.props.config.autoOrder === true ?
+            <div className='submitcontainer' >
+            <label>Side:</label>
+              <div className='submitbutton'>
+                <button onClick={this.handleActiveOrder} name='activeOrder' value='BUY' className={this.state.activeOrder === 'BUY' ? 'button buttongreen activeOrder' : 'button buttongray buttongrayhover'}>BUY {this.props.webviewSwitch.currentTicker.ticker.slice(0,3)}</button>
+              </div>
+            </div> :
             <div className='submitcontainer' >
               <div className='submitbutton'>
-                <button className={this.props.side === 'BUY' ? 'button buttongreen' : 'button buttonred' } type='button'>{this.props.side} {this.props.webviewSwitch.currentTicker.ticker.slice(0,3)}</button>
+                <button onClick={this.handleActiveOrder} name='activeOrder' value='BUY' className={this.state.activeOrder === 'BUY' ? 'button buttongreen buttongreenhover activeOrder' : 'button buttongreen buttongreenhover'}>BUY {this.props.webviewSwitch.currentTicker.ticker.slice(0,3)}</button>
+              </div>
+            </div>}
+          </div>
+          <div className='columncontainer'>
+            { this.state.activeTab === 'Tracker' ?
+            <div className='inputcontainer'>
+            <label title=''>Interval: {this.state.update.interval} {this.state.update.intervalUnit === 'M' ? 'Minutes' : 'Seconds' }</label>
+              <div className='inputrow'>
+              <input onChange={this.handleUpdateInput} name='interval' className='' value={this.state.update.interval}/>
+              <button onClick={this.handleUpdateInput} name='intervalUnit' className='button buttongray unit' value={this.state.update.intervalUnit === 'M' ? 'S' : 'M' } type='button'>{this.state.update.intervalUnit}</button>
+              </div>
+            </div> : <div></div>}
+            { this.state.activeTab === 'Tracker' ?
+            <div className='inputcontainer'>
+            <label title=''>High Price: {this.state.priceRange.randomhigh}</label>
+              <div className='inputrow'>
+                <input onChange={this.handlePriceInput} name='high' className='' value={this.state.priceRange.high}/>
+              </div>
+            </div> : <div></div>}
+            { this.state.activeTab !== 'Tracker' ? <div className='inputcontainer'>
+            <label>Price:</label>
+              <div className='inputrow'>
+                <input onChange={this.handleInput} value={this.state.sellPrice}  name='sellPrice'/>
+                <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                : 'UKN'}</p>
+              </div>
+            </div> : <div></div>}
+            <div className='inputcontainer'>
+              <label>Amount:</label>
+              <div className='inputrow'>
+                <input onChange={this.handleInput} value={this.state.sellAmount} name='sellAmount'/>
+                <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                ? this.props.webviewSwitch.currentTicker.ticker.slice(0,-3)
+                : 'UKN'}</p>
               </div>
             </div>
-          </form>
+            <div className='percencontainer'>
+              <label className=''></label>
+              <div className='percentagebuttons'>
+                <button className='buttongray'>25%</button>
+                <button className='buttongray'>50%</button>
+                <button className='buttongray'>75%</button>
+                <button className='buttongray'>100%</button>
+              </div>
+            </div>
+            { this.state.activeTab !== 'Tracker' ?
+            <div className='inputcontainer'>
+              <label className=''>Total:</label>
+              <div className='inputrow'>
+                <input onChange={this.handleInput} value={this.state.sellTotal} name='total' />
+                <p className='base'>{this.props.webviewSwitch.currentTicker.ticker
+                  ? this.props.webviewSwitch.currentTicker.ticker.slice(-3)
+                  : 'UKN'}</p>
+              </div>
+            </div>
+            : null }
+            {this.props.config.autoOrder === true ?
+            <div className='submitcontainer' >
+            <label style={{'minHeight': '17px'}}> </label>
+              <div name={console.log(this)} className='submitbutton'>
+                  <button onClick={this.handleActiveOrder} name='activeOrder' value='SELL' className={this.state.activeOrder === 'SELL' ? 'button buttonred activeOrder' : 'button buttongray buttongrayhover'} type='button'>SELL</button>
+              </div>
+            </div>
+            :
+            <div className='submitcontainer' >
+              <div name={console.log(this)} className='submitbutton'>
+                  <button onClick={this.handleActiveOrder} name='activeOrder' value='SELL' className={this.state.activeOrder === 'SELL' ? 'button buttonred' : 'button buttonred buttonredhover'} type='button'>SELL</button>
+              </div>
+            </div>}
+
+
+          </div>
+
+        </div>
+        { this.props.config.autoOrder === true ?
+        <div className='submitcontainer' >
+          <div className='createbuttons'>
+            <button name='Create' onClick={this.handleCreate} className='button buttongray buttongrayhover'  type='button'>Create</button>
+            <button name='Cancel' onClick={this.handleCreate} className='button buttongray buttonredhover' type='button'>Cancel</button>
+          </div>
+        </div> : <div></div>}
       </ManualStyle>
     );
   }
@@ -78,31 +382,59 @@ class ManualOrder extends Component {
 
 const mapStateToProps = state => ({
   webviewSwitch: state.toggleAlertLissnerReducer,
+  binaceApi: state.binanceApiReducer
 })
 
 const mapActionsToProps = {
 }
 
 export default connect(mapStateToProps, mapActionsToProps)(ManualOrder)
-
 const ManualStyle = styled.div`
 
-form {
+/* .createbuttons > button:first-child {
+   margin-right: 8px;
+}
+
+.createbuttons > button:last-child {
+   margin-left: 8px;
+} */
+.activeOrder {
+  background-color: #17629e;
+  outline: none;
+  color: white;
+}
+
+.createbuttons {
   display: flex;
+
   flex-direction: column;
 }
 
-form > div {
+.createbuttons > button {
+    margin-bottom: 20px;
+}
+
+.bodycontainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.columncontainer {
+  flex: 1;
+  flex-direction: column;
+}
+
+.columncontainer > div {
   display flex;
   flex-direction: column;
 }
 
-form > div > div {
+.columncontainer > div > div {
   display flex;
   background: green;
 }
 
-form > div > div > p {
+.columncontainer > div > div > p {
   color: gray;
   width: 32px;
   background-color: white;
@@ -115,7 +447,7 @@ form > div > div > p {
 }
 
 .percencontainer {
-  padding: 0px 8px;
+  padding: 5px 8px;
 }
 
 .submitcontainer{
@@ -129,7 +461,10 @@ form > div > div > p {
   flex: 1;
 }
 
+
+
 input {
+  height: 18px;
   flex: 1;
   background-color: white;
   border: 0px solid white;
@@ -139,13 +474,17 @@ input:focus {
   outline: none;
 }
 
-.button {
+
+
+button {
+  flex: 1;
   border: none;
   color: white;
   padding: 5px 8px;
   text-align: center;
   transition-duration: 0.4s;
   cursor: pointer;
+  outline: none;
 }
 
 .buttongray {
@@ -154,7 +493,7 @@ input:focus {
   border: none;
 }
 
-.buttongray:hover {
+.buttongrayhover:hover {
   background-color: #17629e;
 }
 
@@ -164,7 +503,7 @@ input:focus {
   border: none;
 }
 
-.buttongreen:hover {
+.buttongreenhover:hover {
   background-color: #4CAF50;
   color: white;
 }
@@ -175,97 +514,50 @@ input:focus {
   border: none;
 }
 
-.buttonred:hover {
+.buttonredhover:hover {
   background-color: #f44336;
   color: white;
 }
+.button4hover:hover {background-color: #17629e;}
 
-
-.button4:hover {background-color: #17629e;}
-
-/* .inputcontainer {
-  padding-left: 5px;
-  padding-right: 20px;
-}
-.percentagebuttons {
-  display: flex;
-  margin-bottom: 5px;
+.unit {
+  max-width: 30px;
+  padding: 0px 8px 0px 8px;
+  height: 20px;
 }
 
-.percentagebuttons input {
-  flex: 1;
+
+.orderTypeButtons {
+ display: flex;
+ flex-grow: 1
 }
 
-.submitbutton {
-  display: flex;
-  margin-bottom: 10px;
-}
-.submitbutton button {
-  flex: 1
-}
-
-.ticker {
-  display: flex;
-  flex-direction: row;
+.orderTypeButtons > button {
+ flex: 1;
+ color: white;
+ padding: 10px 8px;
+ background-color: #131722;
+ transition-duration: 0.4s;
+ border: none;
 }
 
-.inputrow {
-  display: flex;
-
-}
-.inputrow input {
-  flex 1;
-  background-color: white;
-  border: 0px solid white;
-  margin-bottom: 5px;
-}
-.inputrow input:focus {
+.orderTypeButtons > button:focus {
   outline: none;
 }
-.inputrow p {
-  color: gray;
-  width: 32px;
-  background-color: white;
-  border: 0px solid white;
-  margin-bottom: 5px;
+
+.orderTypeButtons > button:hover {
+  background-color: #2f3241;
 }
 
-span {
-  background-color: white;
-}
-
-.button {
-  border: none;
-  color: white;
-  padding: 5px 8px;
-  text-align: center;
-  transition-duration: 0.4s;
-  cursor: pointer;
+.orderTypeButtons > .activeTab {
+  background-color: #2f3241;
 }
 
 .tickerFull {
-  padding: 5px 8px;
+  font-size: 20px;
+  font-weight: bold;
   text-align: center;
-  font-size: 16pt;
+  padding: 10px 0px
 }
-
-.button4 {
-  background-color: #e7e7e7;
-  color: black;
-  border: none;
-}
-
-.button1 {
-  background-color: #4CAF50;
-  color: black;
-  border: none;
-}
-
-.button1:hover {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.button4:hover {background-color: #17629e;} */
 
 `
