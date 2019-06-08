@@ -193,15 +193,15 @@ function convertPayload(orderPayload) {
   return new Promise((resolve, reject) => {
     orderPayload = orderPayload.replace(/:\s*/g, ':')
     .replace(/(,\s*)|(\s+)/g,'|').split('|')
-    payload = {}
+    let payload = {}
       for (let i=0; i < orderPayload.length; i++) {
-        match = orderPayload[i].replace(/(\s)/g,'').match(/(^.+?):(.+?)(,|$)/)
+        let match = orderPayload[i].replace(/(\s)/g,'').match(/(^.+?):(.+?)(,|$)/)
         if (match) {
           if (match[1].toLowerCase() === 'update' || match[1].toLowerCase()
           === 'interval') {
             //@DEV Check to make sure there is a time unit i.e. M or S
             try {
-              timeMatch = match[2].toUpperCase().match(/(\d+?)(M|S)/)
+              let timeMatch = match[2].toUpperCase().match(/(\d+?)(M|S)/)
               if (timeMatch[2] === 'M') {
                 //@DEV change the minutes spesified in the alert to milliseconds
                 payload = {
@@ -235,7 +235,7 @@ function convertPayload(orderPayload) {
   }
 
 
-    function validateOrder(payload) {
+function validateOrder(payload) {
       return new Promise((resolve, reject) => {
         if (payload.type === 'TRACKER') {
           if (payload.hasOwnProperty('price')) {

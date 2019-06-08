@@ -114,47 +114,6 @@ export const count = (countType) => {
   })
 }
 
-export const testTime = (countType) => {
-    count(countType).then((result) => {
-        console.log(result)
-    })
-}
-
-
-// export const checkOrders = async(ticker) => {
-//     let msg = {
-//         commission: "0.04300000",
-//         commissionAsset: "ENJ",
-//         creationTime: 1543634966872,
-//         eventTime: 1543635053271,
-//         eventType: "executionReport",
-//         executionType: "TRADE",
-//         icebergQuantity: "0.00000000",
-//         isBuyerMaker: true,
-//         isOrderWorking: false,
-//         lastTradeQuantity: "43.00000000",
-//         newClientOrderId: "1qqPAILOPeenUw4w7ElN6R",
-//         orderId: 20302799,
-//         orderRejectReason: "NONE",
-//         orderStatus: "PARTIALLY_FILLED",
-//         orderTime: 1543635053271,
-//         orderType: "LIMIT",
-//         originalClientOrderId: "null",
-//         price: "0.00023868",
-//         priceLastTrade: "0.00023868",
-//         quantity: "55.00000000",
-//         side: "BUY",
-//         stopPrice: "0.00000000",
-//         symbol: "ENJETH",
-//         timeInForce: "GTC",
-//         totalQuoteTradeQuantity: "0.01026324",
-//         totalTradeQuantity: "43.00000000",
-//         tradeId: 1785619,
-//     };
-//
-//
-// }
-
 export const signalHandler = async(msg) => {
   if (msg.executionType === 'NEW') {
     //@DEV new exacution order came in for the excange
@@ -177,6 +136,11 @@ export const signalHandler = async(msg) => {
 export const sortOrder = (msg) => {
   if ((msg.side === 'BUY' || msg.side === 'SELL') && msg.type === 'TRACKER') {
     placeTrackingOrder(msg)
+    return
+  }
+  if ((msg.side === 'BUY' || msg.side === 'SELL') && msg.type !== 'TRACKER') {
+    placeOrder(msg)
+    return
   }
 }
 let customId = 0
@@ -321,274 +285,21 @@ export const placeTrackingOrder = async(msg) => {
 }
 
 
+export const placeOrder = async(msg) => {
+  let response = await client.order({
+    type: msg.type,
+    symbol: msg.symbol,
+    side: msg.side,
+    quantity: msg.amount,
+    price: msg.price,
+  }).catch((err) => {
+    if (err.message === 'Account has insufficient balance for requested action.') {
+      console.error('Not enough funds in acccout to place that order')
+    }
+  })
+}
 
 
-
-
-
-
-
-
-
-
-
-//     let attempt = 0
-//     const recursive = () => {
-//             setTimeout(async() => {
-//                 await checkposition()
-//             }, msg.interval * 1000)
-//         }
-//     let shouldreturn = false
-//     const checkposition = (async() => {
-//         try {
-//         //console.log(`%c Bid = ${bid} Ask = ${ask}`, 'color:blue')
-//             newOrderPrice = msg.side === 'BUY' ? bid : ask
-//             if ( _newOrderPrice !== newOrderPrice ) {
-//                 _newOrderPrice = newOrderPrice
-//                 limit = await count('OPS')
-//                 if ( limit.rateLimitReached ) {
-//                     //console.log(`${msg.response.orderId}: RateLimit (1)`)
-//                     recursive(); return }
-//                 //console.log(`${msg.response.orderId}: After RateLimit (1)`)
-//                 let order
-//                 //console.log(`(1) orderId ${msg.response.orderId}: start sleep`)
-//                 const cancelOrder = (() => {
-//                     return new Promise(async(resolve, reject) => {
-//                         //console.log(`(2) orderId ${msg.response.orderId}: start timout order`)
-//                         order = await client.cancelOrder({
-//                             symbol: msg.symbol,
-//                             orderId: msg.response.orderId,
-//                         }).then((result) => {
-//                             console.log(`cancelOrder then`)
-//                             resolve(result)
-//                         }).catch(async(err) => {
-//                             if (err.toString().includes('UNKNOWN_ORDER')) {
-//                                 if (attempt <= 5) {
-//                                     console.log('cancelOrder attempt = ' + attempt)
-//                                     setTimeout(async() => {
-//                                         attempt++
-//                                         logger.error(`orderId: ${msg.response.orderId} not found, retry: ${attempt}: orginal error: ` + err);
-//                                         await cancelOrder()
-//                                     }, 2000)
-//                                     resolve('error')
-//                                     //return
-//                                 } else {
-//                                     logger.warn('order was does not exist on exchange: shutting down Order');
-//                                     await clean()
-//                                     resolve('error')
-//                                     //return
-//                                 }
-//                             }
-//                         })
-//                         //console.log(`(2) orderId ${msg.response.orderId}: end timout order`)
-//
-//                     })
-//                 })
-//                 await cancelOrder().then(async(orderResult) => {
-//                     if (orderResult === 'error') {
-//                         shouldreturn = true
-//                     }
-//                 })
-//                 if (shouldreturn) {
-//                     console.log('error')
-//                     recursive()
-//                     return
-//                 }
-//
-//                 //console.log(`(1) orderId ${msg.response.orderId}: stop sleep`)
-//
-//
-//                 attempt = 0
-//                 limit = await count('OPS')
-//                 //console.log(`(3) orderId ${msg.response.orderId}: final order`)
-//                 order = await client.order({
-//                     symbol: msg.symbol,
-//                     side: msg.side,
-//                     quantity: msg.quantity,
-//                     price: newOrderPrice,
-//                 })
-//                 order.customId = customId++
-//                 //console.log(`(3) orderId ${msg.response.orderId}: end final order`)
-//                 //console.log(`%c 3rd ${order.orderId}`, 'color:blue')
-//                 msg = {
-//                     ...msg,
-//                     response: order
-//                 }
-//             }
-//         } catch (err) {
-//             console.log(err)
-//         }
-//         recursive()
-//     })
-//     checkposition()
-// }
-
-
-//
-//
-// export const placeTrackingOrder = async(msg) => {
-//     console.log('Start Order Tracking')
-//     let book = await client.book({ symbol: msg.symbol })
-//     let _newOrderPrice, newOrderPrice
-//
-//     if (msg.side === 'BUY') {
-//         newOrderPrice = BigNumber(book.bids[0].price).minus(0.00000350).toFixed(8)
-//     } else {
-//         newOrderPrice = BigNumber(book.bids[0].price).plus(0.00000350).toFixed(8)
-//     }
-//     _newOrderPrice = newOrderPrice
-//     await count('OPS').then((result) => {
-//         console.log(result.rateLimitReached)
-//         if (result.rateLimitReached) { return }})
-//     let response = await client.order({
-//         symbol: msg.symbol,
-//         side: msg.side,
-//         quantity: msg.quantity,
-//         price: newOrderPrice,
-//     })
-//     msg = {
-//         ...msg,
-//         response: response
-//     }
-//     let bid, ask
-//     const clean = client.ws.partialDepth({ symbol: msg.symbol, level: 5 }, async(depth) => {
-//         bid = BigNumber(depth.bids[0].price).minus(0.00000350).toFixed(8)
-//         ask = BigNumber(depth.asks[0].price).plus(0.00000350).toFixed(8)
-//     })
-//     const checkposition = setInterval(async() => {
-//         try {
-//         //console.log(`%c Bid = ${bid} Ask = ${ask}`, 'color:blue')
-//             if (msg.side === 'BUY') {
-//                 newOrderPrice = bid
-//             } else {
-//                 newOrderPrice = ask
-//             }
-//             if ( _newOrderPrice !== newOrderPrice ) {
-//                 console.log('Placing New Order at ' + newOrderPrice)
-//                 _newOrderPrice = newOrderPrice
-//                 let test = await count('OPS')
-//                 if ( test.rateLimitReached ) {
-//                     return
-//                 }
-//                 console.log('here!!!!!!!!!!!')
-//                 await client.cancelOrder({
-//                     symbol: msg.symbol,
-//                     orderId: msg.response.orderId,
-//                 }).then(async() => {
-//
-//                 await delete orderTracker[msg.response.orderId]
-//                     let test = await count('OPS')
-//                     response = await client.order({
-//                         symbol: msg.symbol,
-//                         side: msg.side,
-//                         quantity: msg.quantity,
-//                         price: newOrderPrice,
-//                     }).catch((err) => {
-//                         console.log(newOrderPrice)
-//                         console.log(msg)
-//                         console.log(response)
-//                         console.log('error in Order 2' + err)
-//                     })
-//                     msg = {
-//                         ...msg,
-//                         response: response
-//                     }}).catch(async(err) => {
-//                         if (err.toString().includes('UNKNOWN_ORDER')) {
-//                             console.log('order was does not exist on exchange: shutting down Order')
-//                             await clearInterval(checkposition)
-//                             clean()
-//                             return
-//                         } else {
-//                             throw err
-//                         }
-//                     })
-//
-//             } else if ('executionType' in orderTracker[msg.response.orderId]) {
-//                 let executionType = orderTracker[msg.response.orderId].executionType
-//                 if (executionType === 'FILLED' || executionType === 'EXPIRED' ) {
-//                     console.log('Order Compleated with code: ' + executionType)
-//                     clearInterval(checkposition)
-//                     clean()
-//                 }
-//             }
-//         } catch (err) {
-//             console.log(err)
-//         }
-//     }, msg.interval * 1000)
-// }
-//
-
-
-
-//     binance.websockets.trades(['ENJETH', 'ETHBTC'], (trades) => {
-//   let {e:eventType, E:eventTime, s:symbol, p:price, q:quantity, m:maker, a:tradeId} = trades;
-//   console.log(symbol+" trade update. price: "+price+", quantity: "+quantity+", maker: "+maker);
-// });
-//     //binance = store.getState().SettingsReducer.binanceObj
-//     var quantity = '50';
-//     binance.bookTickers(ticker, (error, spread) => {
-//         let bidPrice = spread.bidPrice
-//         if (_bidPrice !== bidPrice) {
-//             _bidPrice = bidPrice
-//             const setOrderPrice = BigNumber(spread.bidPrice).minus(0.00000150).toFixed(8)
-//             console.log(`%c ${(spread.bidPrice)} = ${setOrderPrice}`, 'color:blue')
-//             binance.buy(ticker, quantity, setOrderPrice, {type:'LIMIT'}, (error, response) => {
-//                 console.log("Limit Buy response", response);
-//                 orderID = response.orderId
-//             });
-//         }
-//         if (orderID) {
-//             binance.orderStatus(ticker, orderID, (error, orderStatus, symbol) => {
-//                 console.log(symbol+" order status:", orderStatus);
-//             });
-//         }
-//     });
-//     await setTimeout(() => {placeTrackingOrder(ticker)}, 3000)
-
-
-
-// const app = window.require("electron")
-// const settings = window.require('electron-settings');
-
-
-// export const GET_BINANCE_API_SETTINGS = "GET_BINANCE_API_SETTINGS"
-// export const settingsGitBinanceApiAction = () => {
-//     const payload = {
-//         APIKEY: settings.get('BinanceAPI.APIKEY'),
-//         APISECRET: settings.get('BinanceAPI.APISECRET'),
-//         useServerTime: settings.get('BinanceAPI.useServerTime'),
-//         test: settings.get('BinanceAPI.test')
-//     }
-//     return {
-//         type: GET_BINANCE_API_SETTINGS,
-//         payload: payload
-//     }
-// }
-
-
-// const binaceinit = () => ({
-//   // type: BINANCE,
-//   // payload: new Promise(() => {
-//   //
-//   // }),
-// })
-
-//const testwright = () => ({
-//  ipcRenderer.sendToHost('SETTINGS', "save Settings")
-//})
-
-
-
-
-
-// const TEST = "TEST"
-//
-// export const settingsSetBinanceApiAction = () => {
-//     settings.set('name', {
-//     first: 'Cosmo',
-//     last: 'Kramer'
-//     });
-// }
 export const getTickerPrice = () => {
     // get current price of a ticker
     client2.prices('ENJETH', (error, ticker) => {

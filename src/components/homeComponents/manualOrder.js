@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import styled from 'styled-components'
 import { sendAlertToWebviewAction } from '../../actions/webviewSwitchActions.js'
+import { getTickerPrice, initBinanceApi, getBallance, placeOrder, signalHandler } from '../../actions/binanceApiActions.js'
+import { convertPayload, validateOrder } from '../../utils/utils.js'
+
 import {BigNumber} from 'bignumber.js';
 
 class ManualOrder extends Component {
@@ -61,9 +64,9 @@ class ManualOrder extends Component {
 symbol: ${this.props.webviewSwitch.currentTicker.ticker},
 type: ${this.state.activeTab.toUpperCase()},
 side: ${this.state.activeOrder},
-amount: ${amount}`
-console.log(setOrder)
-          //sendAlertToWebviewAction(setOrder)
+amount: ${amount}
+price: ${price}`
+          sendAlertToWebviewAction(setOrder)
         }
         if (this.state.activeTab === 'Tracker') {
           let setOrder =
@@ -76,8 +79,7 @@ interval: ${this.state.update.interval.toString()}${this.state.update.intervalUn
 low: ${this.state.priceRange.low},
 high: ${this.state.priceRange.high},
 amount: ${amount}`
-console.log(setOrder)
-          //sendAlertToWebviewAction(setOrder)
+          sendAlertToWebviewAction(setOrder)
         }
         this.setState({
           ...this.state,
@@ -88,7 +90,7 @@ console.log(setOrder)
   }
 
 
-  handleActiveOrder = e => {
+  handleActiveOrder = (e) => {
     if (this.props.config.autoOrder === false) {
       if (e.target.name === 'Cancel') {
         sendAlertToWebviewAction('Cancel')
@@ -100,6 +102,38 @@ console.log(setOrder)
       }
       // place an order
       console.log('Place Manual Order')
+      let price = e.target.value === 'BUY' ? this.state.buyPrice : this.state.sellPrice
+      let amount = e.target.value === 'BUY' ? this.state.buyAmount : this.state.sellAmount
+      if (this.state.activeTab !== 'Tracker') {
+        placeOrder({
+          type: this.state.activeTab.toUpperCase(),
+          symbol: this.props.webviewSwitch.currentTicker.ticker,
+          side: e.target.value,
+          amount: amount,
+          price: price,
+        })
+      }
+      if (this.state.activeTab === 'Tracker') {
+        convertPayload({
+          event: 'ORDER',
+          type: this.state.activeTab.toUpperCase(),
+          symbol: this.props.webviewSwitch.currentTicker.ticker,
+          side: e.target.value,
+          amount: amount,
+          update: `${this.state.update.frequancy.toString()}${this.state.update.frequancyUnit}`,
+          interval: `${this.state.update.interval.toString()}${this.state.update.intervalUnit}`,
+          low: this.state.priceRange.low,
+          high: this.state.priceRange.high
+        }).then((payload) => {
+          validateOrder(payload).then((result) => {
+            signalHandler(result)
+          }).catch((err) => {
+            console.error(err)
+          })
+        }).catch((err) => {
+          console.error(err)
+        })
+      }
     }
     this.setState({
       ...this.state,
@@ -359,7 +393,7 @@ console.log(setOrder)
             </div>
             :
             <div className='submitcontainer' >
-              <div name={console.log(this)} className='submitbutton'>
+              <div className='submitbutton'>
                   <button onClick={this.handleActiveOrder} name='activeOrder' value='SELL' className={this.state.activeOrder === 'SELL' ? 'button buttonred' : 'button buttonred buttonredhover'} type='button'>SELL</button>
               </div>
             </div>}
