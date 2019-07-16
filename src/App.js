@@ -11,7 +11,7 @@ import { loadSettings } from './actions/settingsAction.js'
 import { webviewSwitch } from './actions/webviewSwitchActions'
 //const test = require('./inject.js')
 const electron = window.require("electron")
-//cons t { default: installExtension, REDUX_DEVTOOLS } = window.require('electron-devtools-installer');
+//const { default: installExtension, REDUX_DEVTOOLS } = window.require('electron-devtools-installer');
 
 class App extends Component {
   constructor (props) {
@@ -61,7 +61,7 @@ openWebviewDevtools(event, data) {
         );
     }
 }
-//https://www.tradingview.com/chart/KyFTcT28/ disablewebsecurity='true'
+//https://www.tradingview.com/chart/KyFTcT28/ disablewebsecurity='true' 
 const mapStateToProps = state => ({
     test: testReducer,
     settings: state.settingsReducer

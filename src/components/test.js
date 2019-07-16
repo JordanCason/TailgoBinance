@@ -3,9 +3,10 @@ import {connect} from 'react-redux';
 import styled from 'styled-components'
 import $ from 'jquery';
 import matchHeight from 'jquery-match-height'
-import  Status  from './homeComponents/status'
-import  ManualOrder  from './homeComponents/manualOrder'
-import  AutoOrder  from './homeComponents/autoOrder'
+import Status  from './homeComponents/status'
+import ManualOrder  from './homeComponents/manualOrder'
+import AutoOrder  from './homeComponents/autoOrder'
+import Wallet from './homeComponents/wallet'
 import { toggleAlertLissnerAction } from '../actions/webviewSwitchActions.js'
 
 class Home extends Component {
@@ -78,6 +79,12 @@ class Home extends Component {
                 <a>Status</a>
                 <div>
                 <Status/>
+                </div>
+              </li>
+              <li>
+                <a>Wallet</a>
+                <div>
+                <Wallet/>
                 </div>
               </li>
               <li >
